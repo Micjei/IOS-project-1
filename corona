@@ -1,0 +1,1225 @@
+#!/bin/bash
+POSIXLY_CORRECT=yes
+
+helps()
+{
+  echo ""
+  echo "USAGE"
+  echo ""
+        echo "\t\t\t corona.sh [-h] [FILTERS] [COMMAND] [LOG [LOG2 [...]]"
+  echo ""
+  echo "COMMANDS"
+  echo ""
+        echo "\t infected \t counts the number of infected."
+        echo "\t merge \t\t merges several log files into one, preserving the original order (the header will be output only once)."
+        echo "\t gender \t lists the number of infected for each sex."
+        echo "\t age \t\t lists statistics on the number of infected people by age (more detailed description is below)."
+        echo "\t daily \t\t lists statistics on infected people for each day."
+        echo "\t monthly \t lists statistics of infected persons for individual months."
+        echo "\t yearly \t lists statistics on infected persons for each year."
+        echo "\t countries \t lists statistics of infected persons for individual countries of the disease (excluding the Czech Republic, ie the CZ code)."
+        echo "\t districts \t lists statistics on infected persons for individual districts."
+        echo "\t regions \t lists statistics of infected persons for individual regions."
+  echo ""
+  echo "FILTERS"
+  echo ""
+        echo "\t -a DATETIME \t after: only AFTER records of this date are considered (including this date). DATETIME is in the format YYYY-MM-DD."
+        echo "\t -b DATETIME \t before: only records BEFORE this date (including this date) are considered. DATETIME is in the format YYYY-MM-DD."
+        echo "\t -g GENDER \t only records of infected persons of a given sex are considered. GENDER can be M (men) or Z (women)."
+        echo "\t -s [WIDTH] \t lists data not numerically, but graphically in the form of histograms."
+  echo ""
+}
+
+filters=("-h" "-a" "-b" "-g" "-s") # filters
+commands=("infected" "merge" "gender" "age" "daily" "monthly" "yearly" "countries" "districts" "regions") # commands
+arguments=("$@") # Array of arguments after corona
+argumentCount=("$#") # Number of arguments after corona
+STR=("") #empty array
+CSV=0
+
+#Finding files 
+for ((q=0 ; q<=argumentCount ; q++)); do
+  if [[ "${arguments[q]}" == *".csv"* ]]; then
+  STR=("${arguments[q]}")
+  CSV=1
+    if [[ "${arguments[q]}" == *".gz"* ]]; then
+      CSV=1
+      gunzip ${arguments[q]}
+      STR=("${arguments[q]%???}")
+    fi
+    if [[ "${arguments[q]}" == *".csv.bz2"* ]]; then
+      CSV=1
+      bzip2 -d ${arguments[q]}
+      STR=("${arguments[q]%????}")
+    fi
+  fi
+done
+#If the command line contains -h, it shows helps and exits the script
+for ((h=0 ; h<=argumentCount ; h++)); do
+  if [[ "${arguments[h]}" == *"-h"* ]]; then
+  helps
+  exit
+  fi
+done
+
+dateAfterFil()
+{
+  if [[ $CSV -eq 1 ]]; then
+    poleADate=$(awk -F "," -v d=$date '{if(d <= $2) {print $0}}' $STR)
+  else 
+    poleADate=$(awk -F "," -v d=$date '{if(d <= $2) {print $0}}')
+  fi
+}
+
+dateBeforeFil()
+{
+  if [[ $CSV -eq 1 ]]; then
+    poleBDate=$(awk -F "," -v d=$date '{if(d >= $2) {print $0}}' $STR)
+  else 
+    poleBDate=$(awk -F "," -v d=$date '{if(d >= $2) {print $0}}')
+  fi
+}
+
+genderFil()
+{
+  if [[ $CSV -eq 1 ]]; then
+    if [[ $gender == "M" ]]; then
+      poleG=$(awk -F "," '{if($4 == "M") {print $0}}' $STR)
+    fi
+    if [[ $gender == "Z" ]]; then
+      poleG=$(awk -F "," '{if($4 == "Z") {print $0}}' $STR)
+    fi
+  else
+    if [[ $gender == "M" ]]; then
+      poleG=$(awk -F "," '{if($4 == "M") {print $0}}')
+    fi
+    if [[ $gender == "Z" ]]; then
+      poleG=$(awk -F "," '{if($4 == "Z") {print $0}}')
+    fi
+  fi
+}
+mergeG=0
+mergeA=0
+mergeB=0
+#FILTERS
+params=1
+afterDate=0
+beforeDate=0
+gender=0
+graph=0
+while getopts "a:b:g:s:" arg; do
+  case $arg in
+    a)
+      date=${OPTARG}
+      dateAfterFil {$date}
+      params=$((params+2))
+      afterDate=1
+      mergeA=${OPTARG}
+      ;;
+    b)
+      date=${OPTARG}
+      dateBeforeFil {$date}
+      params=$((params+2))
+      beforeDate=1
+      mergeB=${OPTARG}
+      ;;
+    g)
+      gender=${OPTARG}
+      genderFil {$gender}
+      params=$((params+2))
+      gender=1
+      mergeG=${OPTARG}
+      ;;
+    s)
+      params=$((params+2))
+      graph=1
+      ;; 
+  esac
+done
+
+infectedFunc()
+{
+  if [[ $CSV -eq 1 ]]; then
+    adawk=$(awk 'END {print NR-1}' $STR)
+    echo "$adawk"
+  else 
+    adawk=$(awk 'END {print NR-1}' $STR)
+    echo "$adawk"
+  fi
+}
+
+infectedAfterDate()
+{
+  echo "$poleADate" | awk 'END {print NR-1}'
+}
+infectedBeforeDate()
+{
+  echo "$poleBDate" | awk 'END {print NR-1}'
+}
+infectedOneGender()
+{
+  echo "$poleG" | awk 'END {print NR-1}'
+}
+
+mergeFunc()
+{
+   #echo "--merge func--"
+   afterMerge=${@: 1} #First argument after argument merge
+   if [[ "$afterMerge" == *".csv"* ]]; then 
+     awk 'NR==1{print $0}' $afterMerge
+     auto=("$@")
+       for file in $@
+       do 
+        #echo "------------------------------------------------------------------" 
+        #cat $file | sed '1d'
+       awk ' NR>1{print }' $file
+       done
+   fi
+}
+
+mergeAfterDate()
+{
+   #echo "--merge func--"
+   afterMerge=${@: 1} #First argument after argument merge
+   if [[ "$afterMerge" == *".csv"* ]]; then 
+  awk 'NR==1{print $0}' $afterMerge
+     auto=("$@")
+       for file in $@
+       do 
+        #echo "------------------------------------------------------------------" 
+       IDK=$(awk ' NR>1{print }' $file)
+       echo "$IDK" | awk -F "," -v d=$date '{if(d <= $2) {print $0}}'
+       done
+   fi
+}
+
+mergeBeforeDate()
+{
+   #echo "--merge func--"
+   afterMerge=${@: 1} #First argument after argument merge
+   if [[ "$afterMerge" == *".csv"* ]]; then 
+  awk 'NR==1{print $0}' $afterMerge
+     auto=("$@")
+       for file in $@
+       do 
+        #echo "------------------------------------------------------------------" 
+       IDK=$(awk ' NR>1{print }' $file)
+       echo "$IDK" | awk -F "," -v d=$date '{if(d >= $2) {print $0}}'
+       done
+   fi
+}
+
+mergeOneGender()
+{
+   #echo "--merge func--"
+   afterMerge=${@: 1} #First argument after argument merge
+   if [[ "$afterMerge" == *".csv"* ]]; then 
+  awk 'NR==1{print $0}' $afterMerge
+     auto=("$@")
+       for file in $@
+       do 
+        #echo "------------------------------------------------------------------" 
+       IDK=$(awk 'NR>1{print}' $file)
+       if [[ $mergeG == "M" ]]; then
+        echo "$IDK" | awk -F "," '{if($4 == "M") {print $0}}'
+       fi
+       if [[ $mergeG == "Z" ]]; then
+        echo "$IDK" | awk -F "," '{if($4 == "Z") {print $0}}'
+       fi
+       done
+   fi
+}
+
+genderFunc()
+{
+  if [[ $CSV -eq 1 ]]; then
+  awk -F "," '
+    match($4, /M/) {m++} 
+    match($4, /Z/) {z++}
+    {if ($4 == "") none++}
+    END {
+      print "M:   " m 
+      print "Z:   " z 
+      print "None:" none
+    }' $STR 
+  else 
+  awk -F "," '
+    match($4, /M/) {m++} 
+    match($4, /Z/) {z++}  
+    {if ($4 == "") none++}
+    END {
+      print "M:   " m 
+      print "Z:   " z 
+      print "none:"
+    }'
+  fi 
+}
+
+genderAfterDate()
+{
+  echo "$poleADate" | awk -F "," '
+    match($4, /M/) {m++} 
+    match($4, /Z/) {z++}
+    {if ($4 == "") none++}
+    END {
+      print "M:   " m 
+      print "Z:   " z 
+      print "None:" none
+    }'
+}
+
+genderBeforeDate()
+{
+  echo "$poleBDate" | awk -F "," '
+    match($4, /M/) {m++} 
+    match($4, /Z/) {z++}
+    {if ($4 == "") none++}
+    END {
+      print "M:   " m 
+      print "Z:   " z 
+      print "None:" none
+    }'
+}
+
+genderOneGender()
+{
+  echo "$poleG" | awk -F "," '
+    match($4, /M/) {m++} 
+    match($4, /Z/) {z++}
+    {if ($4 == "") none++}
+    END {
+      print "M:   " m 
+      print "Z:   " z 
+      print "None:" none
+    }'
+}
+
+genderGraph()
+{
+  if [[ $CSV -eq 1 ]]; then
+    awk -F "," '{if($4 == "M"){m++}{if($4 == "Z"){z++}{if($4 == ""){n++}}}}
+    END{
+    printf "M:   "
+    for(j=m/100000 ; j>1 ; j--) printf "#"
+    print " "
+    printf "Z:   "
+    for(i=z/100000 ; i>1 ; i--) printf "#"
+    print " "
+    printf "None:"
+    for(non=n/100000 ; non>1 ; non--) printf "#"
+    }' $STR
+  else
+    awk -F "," '{if($4 == "M"){m++}{if($4 == "Z"){z++}{if($4 == ""){n++}}}}
+    END{
+    printf "M:   "
+    for(j=m/100000 ; j>1 ; j--) printf "#"
+    print " "
+    printf "Z:   "
+    for(i=z/100000 ; i>1 ; i--) printf "#"
+    print " "
+    printf "None:"
+    for(non=n/100000 ; non>1 ; non--) printf "#"
+    }'
+  fi
+}
+
+ageFunc()
+{
+  if [[ $CSV -eq 1 ]]; then
+  awk -F "," 'NR>1{ 
+    if ($3 == "") none++
+    else if ($3 >= 0 && $3 <= 5) first++
+    else if ($3 > 5 && $3 <= 15) second++
+    else if ($3 > 15 && $3 <= 25) third++     
+    else if ($3 > 25 && $3 <= 35) fourth++
+    else if ($3 > 35 && $3 <= 45) fifth++
+    else if ($3 > 45 && $3 <= 55) sixth++
+    else if ($3 > 55 && $3 <= 65) seventh++
+    else if ($3 > 65 && $3 <= 75) eigth++
+    else if ($3 > 75 && $3 <= 85) nineth++
+    else if ($3 > 85 && $3 <= 95) tenth++
+    else if ($3 > 95 && $3 <= 105) eleventh++ 
+    else ($3 > 105) twelfth++
+    } 
+    END {
+      print "0-5   :" first
+      print "6-15  :" second
+      print "16-25 :" third
+      print "26-35 :" fourth
+      print "36-45 :" fifth
+      print "46-55 :" sixth
+      print "56-65 :" seventh
+      print "66-75 :" eigth
+      print "76-85 :" nineth
+      print "86-95 :" tenth
+      print "96-105:" eleventh
+      print ">105  :" twelfth
+      print "None  :" none
+    }' $STR
+  else 
+  awk -F "," 'NR>1{ 
+    if ($3 == "") none++
+    else if ($3 >= 0 && $3 <= 5) first++
+    else if ($3 > 5 && $3 <= 15) second++
+    else if ($3 > 15 && $3 <= 25) third++     
+    else if ($3 > 25 && $3 <= 35) fourth++
+    else if ($3 > 35 && $3 <= 45) fifth++
+    else if ($3 > 45 && $3 <= 55) sixth++
+    else if ($3 > 55 && $3 <= 65) seventh++
+    else if ($3 > 65 && $3 <= 75) eigth++
+    else if ($3 > 75 && $3 <= 85) nineth++
+    else if ($3 > 85 && $3 <= 95) tenth++
+    else if ($3 > 95 && $3 <= 105) eleventh++ 
+    else ($3 > 105) twelfth++
+    } 
+    END {
+      print "0-5   :" first
+      print "6-15  :" second
+      print "16-25 :" third
+      print "26-35 :" fourth
+      print "36-45 :" fifth
+      print "46-55 :" sixth
+      print "56-65 :" seventh
+      print "66-75 :" eigth
+      print "76-85 :" nineth
+      print "86-95 :" tenth
+      print "96-105:" eleventh
+      print ">105  :" twelfth
+      print "None  :" none
+    }'
+  fi
+}
+
+ageAfterDate()
+{
+  echo "$poleADate" | awk -F "," 'NR>1{ 
+    if ($3 == "") none++
+    else if ($3 >= 0 && $3 <= 5) first++
+    else if ($3 > 5 && $3 <= 15) second++
+    else if ($3 > 15 && $3 <= 25) third++     
+    else if ($3 > 25 && $3 <= 35) fourth++
+    else if ($3 > 35 && $3 <= 45) fifth++
+    else if ($3 > 45 && $3 <= 55) sixth++
+    else if ($3 > 55 && $3 <= 65) seventh++
+    else if ($3 > 65 && $3 <= 75) eigth++
+    else if ($3 > 75 && $3 <= 85) nineth++
+    else if ($3 > 85 && $3 <= 95) tenth++
+    else if ($3 > 95 && $3 <= 105) eleventh++ 
+    else ($3 > 105) twelfth++
+    } 
+    END {
+      print "0-5   :" first
+      print "6-15  :" second
+      print "16-25 :" third
+      print "26-35 :" fourth
+      print "36-45 :" fifth
+      print "46-55 :" sixth
+      print "56-65 :" seventh
+      print "66-75 :" eigth
+      print "76-85 :" nineth
+      print "86-95 :" tenth
+      print "96-105:" eleventh
+      print ">105  :" twelfth
+      print "None  :" none
+    }'
+}
+
+ageBeforeDate()
+{
+  echo "$poleBDate" | awk -F "," 'NR>1{ 
+    if ($3 == "") none++
+    else if ($3 >= 0 && $3 <= 5) first++
+    else if ($3 > 5 && $3 <= 15) second++
+    else if ($3 > 15 && $3 <= 25) third++     
+    else if ($3 > 25 && $3 <= 35) fourth++
+    else if ($3 > 35 && $3 <= 45) fifth++
+    else if ($3 > 45 && $3 <= 55) sixth++
+    else if ($3 > 55 && $3 <= 65) seventh++
+    else if ($3 > 65 && $3 <= 75) eigth++
+    else if ($3 > 75 && $3 <= 85) nineth++
+    else if ($3 > 85 && $3 <= 95) tenth++
+    else if ($3 > 95 && $3 <= 105) eleventh++ 
+    else ($3 > 105) twelfth++
+    } 
+    END {
+      print "0-5   :" first
+      print "6-15  :" second
+      print "16-25 :" third
+      print "26-35 :" fourth
+      print "36-45 :" fifth
+      print "46-55 :" sixth
+      print "56-65 :" seventh
+      print "66-75 :" eigth
+      print "76-85 :" nineth
+      print "86-95 :" tenth
+      print "96-105:" eleventh
+      print ">105  :" twelfth
+      print "None  :" none
+    }'
+}
+
+agaOneGender()
+{
+  echo "$poleG" | awk -F "," 'NR>1{ 
+    if ($3 == "") none++
+    else if ($3 >= 0 && $3 <= 5) first++
+    else if ($3 > 5 && $3 <= 15) second++
+    else if ($3 > 15 && $3 <= 25) third++     
+    else if ($3 > 25 && $3 <= 35) fourth++
+    else if ($3 > 35 && $3 <= 45) fifth++
+    else if ($3 > 45 && $3 <= 55) sixth++
+    else if ($3 > 55 && $3 <= 65) seventh++
+    else if ($3 > 65 && $3 <= 75) eigth++
+    else if ($3 > 75 && $3 <= 85) nineth++
+    else if ($3 > 85 && $3 <= 95) tenth++
+    else if ($3 > 95 && $3 <= 105) eleventh++ 
+    else ($3 > 105) twelfth++
+    } 
+    END {
+      print "0-5   :" first
+      print "6-15  :" second
+      print "16-25 :" third
+      print "26-35 :" fourth
+      print "36-45 :" fifth
+      print "46-55 :" sixth
+      print "56-65 :" seventh
+      print "66-75 :" eigth
+      print "76-85 :" nineth
+      print "86-95 :" tenth
+      print "96-105:" eleventh
+      print ">105  :" twelfth
+      print "None  :" none
+    }'
+}
+
+ageGraph()
+{
+  if [[ $CSV -eq 1 ]]; then
+  awk -F "," 'NR>1{ 
+    if ($3 == "") none++
+    else if ($3 >= 0 && $3 <= 5) first++
+    else if ($3 > 5 && $3 <= 15) second++
+    else if ($3 > 15 && $3 <= 25) third++     
+    else if ($3 > 25 && $3 <= 35) fourth++
+    else if ($3 > 35 && $3 <= 45) fifth++
+    else if ($3 > 45 && $3 <= 55) sixth++
+    else if ($3 > 55 && $3 <= 65) seventh++
+    else if ($3 > 65 && $3 <= 75) eigth++
+    else if ($3 > 75 && $3 <= 85) nineth++
+    else if ($3 > 85 && $3 <= 95) tenth++
+    else if ($3 > 95 && $3 <= 105) eleventh++ 
+    else ($3 > 105) twelfth++
+    } 
+    END {
+      printf "0-5   :" ;for (f=first/10000 ; f>1 ; f--) printf "#"; print " "
+      printf "6-15  :" ;for (s=second/10000 ; s>1 ; s--) printf "#"; print " "
+      printf "16-25 :" ;for (t=third/10000 ; t>1 ; t--) printf "#"; print " "
+      printf "26-35 :" ;for (fo=fourth/10000 ; fo>1 ; fo--) printf "#"; print " "
+      printf "36-45 :" ;for (fi=fifth/10000 ; fi>1 ; fi--) printf "#"; print " "
+      printf "46-55 :" ;for (si=sixth/10000 ; si>1 ; si--) printf "#"; print " "
+      printf "56-65 :" ;for (se=seventh/10000 ; se>1 ; se--) printf "#"; print " "
+      printf "66-75 :" ;for (e=eigth/10000 ; e>1 ; e--) printf "#"; print " "
+      printf "76-85 :" ;for (n=nineth/10000 ; n>1 ; n--) printf "#"; print " "
+      printf "86-95 :" ;for (te=tenth/10000 ; te>1 ; te--) printf "#"; print " "
+      printf "96-105:" ;for (el=eleventh/10000 ; el>1 ; el--) printf "#"; print " "
+      printf ">105  :" ;for (tw=twelfth/10000 ; tw>1 ; tw--) printf "#"; print " "
+      printf "None  :" ;for (non=none/10000 ; non>1 ; non--) printf "#";
+    }' $STR
+    else 
+    awk -F "," 'NR>1{ 
+    if ($3 == "") none++
+    else if ($3 >= 0 && $3 <= 5) first++
+    else if ($3 > 5 && $3 <= 15) second++
+    else if ($3 > 15 && $3 <= 25) third++     
+    else if ($3 > 25 && $3 <= 35) fourth++
+    else if ($3 > 35 && $3 <= 45) fifth++
+    else if ($3 > 45 && $3 <= 55) sixth++
+    else if ($3 > 55 && $3 <= 65) seventh++
+    else if ($3 > 65 && $3 <= 75) eigth++
+    else if ($3 > 75 && $3 <= 85) nineth++
+    else if ($3 > 85 && $3 <= 95) tenth++
+    else if ($3 > 95 && $3 <= 105) eleventh++ 
+    else ($3 > 105) twelfth++
+    } 
+    END {
+      printf "0-5   :" ;for (f=first/10000 ; f>1 ; f--) printf "#"; print " "
+      printf "6-15  :" ;for (s=second/10000 ; s>1 ; s--) printf "#"; print " "
+      printf "16-25 :" ;for (t=third/10000 ; t>1 ; t--) printf "#"; print " "
+      printf "26-35 :" ;for (fo=fourth/10000 ; fo>1 ; fo--) printf "#"; print " "
+      printf "36-45 :" ;for (fi=fifth/10000 ; fi>1 ; fi--) printf "#"; print " "
+      printf "46-55 :" ;for (si=sixth/10000 ; si>1 ; si--) printf "#"; print " "
+      printf "56-65 :" ;for (se=seventh/10000 ; se>1 ; se--) printf "#"; print " "
+      printf "66-75 :" ;for (e=eigth/10000 ; e>1 ; e--) printf "#"; print " "
+      printf "76-85 :" ;for (n=nineth/10000 ; n>1 ; n--) printf "#"; print " "
+      printf "86-95 :" ;for (te=tenth/10000 ; te>1 ; te--) printf "#"; print " "
+      printf "96-105:" ;for (el=eleventh/10000 ; el>1 ; el--) printf "#"; print " "
+      printf ">105  :" ;for (tw=twelfth/10000 ; tw>1 ; tw--) printf "#"; print " "
+      printf "None  :" ;for (non=none/10000 ; non>1 ; non--) printf "#";
+    }'
+  fi
+}
+
+dailyFunc()
+{
+  if [[ $CSV -eq 1 ]]; then
+  awk -F "," '
+    NR>1{if($2!="") c[$2]++}
+    {if($2 == "") none++} 
+    END{
+      for (n in c) {
+      print n,":\t"c[n]
+      }
+      print "None :" none
+    }' $STR #| sort -n
+  else
+  awk -F "," '
+    NR>1{if($2!="") c[$2]++}
+    {if($2 == "") none++} 
+    END{
+      for (n in c) {
+      print n,":\t"c[n]
+      }
+      print "None :" none
+    }' #| sort -n
+  fi
+}
+
+dailyAfterDate()
+{
+  echo "$poleADate" | awk -F "," '
+    {if($2!="") cd[$2]++}
+    {if($2 == "") none++} 
+    END{
+      for (nd in cd) {
+      print nd,":\t"cd[nd]
+      }
+      print "None :" none
+    }'
+}
+
+dailyBeforeDate()
+{
+  echo "$poleBDate" | awk -F "," '
+    {if($2!="") cd[$2]++}
+    {if($2 == "") none++} 
+    END{
+      for (nd in cd) {
+      print nd,":\t"cd[nd]
+      }
+      print "None :" none
+    }'
+}
+
+dailyOneGender()
+{
+  echo "$poleG" | awk -F "," '
+    {if($2!="") cd[$2]++}
+    {if($2 == "") none++} 
+    END{
+      for (nd in cd) {
+      print nd,":\t"cd[nd]
+      }
+      print "None :" none
+    }'
+}
+
+dailyGraph()
+{
+    if [[ $CSV -eq 1 ]]; then
+    awk -F "," '
+    NR>1{if($2!="") c[$2]++}
+    {if($2 == "") none++} 
+    END{
+      for (n in c) { 
+      printf n":\t", c[n]; for (n=c[n]/500 ; n>0 ; n--) printf "#"; print ""
+      }
+      printf "None  :" ;for (non=none/500 ; non>0 ; non--) printf "#";
+    }' $STR | sort -n
+    else 
+    awk -F "," '
+    NR>1{if($2!="") c[$2]++}
+    {if($2 == "") none++} 
+    END{
+      for (n in c) { 
+      printf n":\t", c[n]; for (n=c[n]/500 ; n>0 ; n--) printf "#"; print ""
+      }
+      printf "None  :" ;for (non=none/500 ; non>0 ; non--) printf "#";
+    }' | sort -n
+    fi
+}
+
+monthlyFunc()
+{
+  if [[ $CSV -eq 1 ]]; then
+  awk -F "[,-]" '
+    NR>1{if($6!="") cm[$6"-"$7]++}
+    {if($7 == "") none++} 
+    END{
+      for (nm in cm) {
+      print nm,":\t"cm[nm]
+      }
+      print "None :" none
+    }' $STR #| sort -n
+  else
+  awk -F "[,-]" '
+    NR>1{if($6!="") cm[$6"-"$7]++}
+    {if($7 == "") none++} 
+    END{
+      for (nm in cm) {
+      print nm,":\t"cm[nm]
+      }
+      print "None :" none
+    }' #| sort -n
+  fi
+}
+
+monthlyAfterDate()
+{
+  echo "$poleADate" | awk -F "[,-]" '
+    {if($6!="") cm[$6"-"$7]++}
+    {if($7 == "") none++} 
+    END{
+      for (nm in cm) {
+      print nm,":\t"cm[nm]
+      }
+      print "None :" none
+    }'
+}
+
+monthlyBeforeDate()
+{
+  echo "$poleBDate" | awk -F "[,-]" '
+    NR>1{if($6!="") cm[$6"-"$7]++}
+    {if($7 == "") none++} 
+    END{
+      for (nm in cm) {
+      print nm,":\t"cm[nm]
+      }
+      print "None :" none
+    }'
+}
+
+monthlyOneGender()
+{
+  echo "$poleG" | awk -F "[,-]" '
+    {if($6!="") cm[$6"-"$7]++}
+    {if($7 == "") none++} 
+    END{
+      for (nm in cm) {
+      print nm,":\t"cm[nm]
+      }
+      print "None :" none
+    }'
+}
+
+monthlyGraph()
+{
+      if [[ $CSV -eq 1 ]]; then
+    awk -F "[,-]" '
+    NR>1{if($6!="") cm[$6"-"$7]++}
+    {if($7 == "") none++} 
+    END{
+      for (nm in cm) { 
+      printf nm":\t", cm[nm]; for (n=cm[nm]/10000 ; n>0 ; n--) printf "#"; print ""
+      }
+      printf "None  :" ;for (non=none/10000 ; non>0 ; non--) printf "#";
+    }' $STR | sort -n
+    else 
+    awk -F "[,-]" '
+    NR>1{if($6!="") cm[$6"-"$7]++}
+    {if($7 == "") none++} 
+    END{
+      for (nm in cm) { 
+      printf nm":\t", cm[nm]; for (n=cm[nm]/10000 ; n>0 ; n--) printf "#"; print ""
+      }
+      printf "None  :" ;for (non=none/10000 ; non>0 ; non--) printf "#";
+    }' | sort -n
+    fi
+}
+
+yearlyFunc()
+{
+  if [[ $CSV -eq 1 ]]; then
+  awk -F "[,-]" '
+    NR>1{if($6!="") cy[$6]++}
+    {if($6 == "") none++}  
+    END{
+      for (ny in cy) {
+      print ny,":\t"cy[ny]
+      }
+      print "None :" none
+    }' $STR #| sort -n
+  else
+  awk -F "[,-]" '
+    NR>1{if($6!="") cy[$6]++}
+    {if($6 == "") none++} 
+    END{
+      for (ny in cy) {
+      print ny,":\t"cy[ny]
+      }
+      print "None :" none
+    }' #| sort -n
+  fi
+}
+
+yearlyAfterDate()
+{
+  echo "$poleADate" | awk -F "[,-]" '
+    {if($6!="") cy[$6]++}
+    {if($6 == "") none++}  
+    END{
+      for (ny in cy) {
+      print ny,":\t"cy[ny]
+      }
+      print "None :" none
+    }'
+}
+
+yearlyBeforeDate()
+{
+  echo "$poleBDate" | awk -F "[,-]" '
+    NR>1{if($6!="") cy[$6]++}
+    {if($6 == "") none++}  
+    END{
+      for (ny in cy) {
+      print ny,":\t"cy[ny]
+      }
+      print "None :" none
+    }'
+}
+
+yearlyOneGender()
+{
+  echo "$poleG" | awk -F "[,-]" '
+    {if($6!="") cy[$6]++}
+    {if($6 == "") none++}  
+    END{
+      for (ny in cy) {
+      print ny,":\t"cy[ny]
+      }
+      print "None :" none
+    }'
+}
+
+yearlyGraph()
+{
+    if [[ $CSV -eq 1 ]]; then
+    awk -F "[,-]" '
+    NR>1{if($6!="") cy[$6]++}
+    {if($6 == "") none++}  
+    END{
+      for (ny in cy) { 
+      printf ny":\t", cy[ny]; for (n=cy[ny]/100000 ; n>0 ; n--) printf "#"; print ""
+      }
+      printf "None  :" ;for (non=none/100000 ; non>0 ; non--) printf "#";
+    }' $STR | sort -n
+    else 
+    awk -F "[,-]" '
+    NR>1{if($6!="") cy[$6]++}
+    {if($6 == "") none++}  
+    END{
+      for (ny in cy) { 
+      printf ny":\t", cy[ny]; for (n=cy[ny]/100000 ; n>0 ; n--) printf "#"; print ""
+      }
+      printf "None:" ;for (non=none/100000 ; non>0 ; non--) printf "#";
+    }' | sort -n
+    fi
+}
+
+countriesFunc()
+{
+  if [[ $CSV -eq 1 ]]; then
+  awk -F "," '
+    NR>1{if($8!="") cc[$8]++}
+    {if($8 == "") none++} 
+    END{
+      for (nc in cc) {
+      print nc,":\t"cc[nc]
+      }
+    }' $STR | sort -n
+  else
+  awk -F "," '
+    NR>1{if($8!="") cc[$8]++}
+    {if($8 == "") none++} 
+    END{
+      for (nc in cc) {
+      print nc,":\t"cc[nc]
+      }
+    }' | sort -n
+  fi
+}
+
+countriesAfterDate()
+{
+  echo "$poleADate" | awk -F "," '
+    {if($8!="") cc[$8]++}
+    {if($8 == "") none++} 
+    END{
+      for (nc in cc) {
+      print nc,":\t"cc[nc]
+      }
+    }'
+}
+
+countriesBeforeDate()
+{
+  echo "$poleBDate" | awk -F "," '
+    NR>1{if($8!="") cc[$8]++}
+    {if($8 == "") none++} 
+    END{
+      for (nc in cc) {
+      print nc,":\t"cc[nc]
+      }
+    }'
+}
+
+countriesOneGender()
+{
+  echo "$poleG" | awk -F "," '
+    {if($8!="") cc[$8]++}
+    {if($8 == "") none++} 
+    END{
+      for (nc in cc) {
+      print nc,":\t"cc[nc]
+      }
+    }'
+}
+
+countriesGraph()
+{
+    if [[ $CSV -eq 1 ]]; then
+    awk -F "," '
+    NR>1{if($8!="") cc[$8]++}
+    {if($8 == "") none++} 
+    END{
+      for (nc in cc) { 
+      printf nc":\t", cc[nc]; for (n=cc[nc]/100 ; n>0 ; n--) printf "#"; print ""
+      }
+    }' $STR | sort -n
+    else 
+    awk -F "," '
+    NR>1{if($8!="") cc[$8]++}
+    {if($8 == "") none++} 
+    END{
+      for (nc in cc) { 
+      printf nc":\t", cc[nc]; for (n=cc[nc]/100 ; n>0 ; n--) printf "#"; print ""
+      }
+    }' | sort -n
+    fi
+}
+
+districtsFunc()
+{
+  if [[ $CSV -eq 1 ]]; then
+  awk -F "," '
+    NR>1{if($6!="") cd[$6]++} 
+    {if($6 == "") none++} 
+    END{
+      for (nd in cd) {
+      print nd,":\t"cd[nd]
+      }
+      print "None :" none
+    }' $STR #| sort -n
+  else
+  awk -F "," '
+    NR>1{if($6!="") cd[$6]++}
+    {if($6 == "") none++}  
+    END{
+      for (nd in cd) {
+      print nd,":\t"cd[nd]
+      }
+      print "None :" none
+    }' #| sort -n
+  fi
+}
+
+districtsAfterDate()
+{
+  echo "$poleADate" | awk -F "," '
+    {if($6!="") cd[$6]++} 
+    {if($6 == "") none++} 
+    END{
+      for (nd in cd) {
+      print nd,":\t"cd[nd]
+      }
+      print "None :" none
+    }'
+}
+
+districtsBeforeDate()
+{
+  echo "$poleBDate" | awk -F "," '
+    NR>1{if($6!="") cd[$6]++} 
+    {if($6 == "") none++} 
+    END{
+      for (nd in cd) {
+      print nd,":\t"cd[nd]
+      }
+      print "None :" none
+    }'
+}
+
+districtsOneGender()
+{
+  echo "$poleG" | awk -F "," '
+    {if($6!="") cd[$6]++} 
+    {if($6 == "") none++} 
+    END{
+      for (nd in cd) {
+      print nd,":\t"cd[nd]
+      }
+      print "None :" none
+    }'
+}
+districtsGraph()
+{
+    if [[ $CSV -eq 1 ]]; then
+    awk -F "," '
+    NR>1{if($6!="") cd[$6]++} 
+    {if($6 == "") none++} 
+    END{
+      for (nd in cd) { 
+      printf nd":\t", cd[nd]; for (n=cd[nd]/1000 ; n>0 ; n--) printf "#"; print ""
+      }
+      printf "None  :" ;for (non=none/1000 ; non>0 ; non--) printf "#";
+    }' $STR | sort -n
+    else 
+    awk -F "," '
+    NR>1{if($6!="") cd[$6]++} 
+    {if($6 == "") none++} 
+    END{
+      for (nd in cd) { 
+      printf nd":\t", cd[nd]; for (n=cd[nd]/1000 ; n>0 ; n--) printf "#"; print ""
+      }
+      printf "None  :" ;for (non=none/1000 ; non>0 ; non--) printf "#";
+    }' | sort -n
+    fi
+}
+
+regionsFunc()
+{
+  if [[ $CSV -eq 1 ]]; then
+  awk -F "," '
+    NR>1{if($5!="") cr[$5]++}
+    {if($5 == "") none++} 
+    END{
+      for (nr in cr) {
+      print nr,":\t"cr[nr]
+      }
+      print "None :" none
+    }' $STR #| sort -n
+  else
+  awk -F "," '
+    NR>1{if($5!="") cr[$5]++}
+    {if($5 == "") none++} 
+    END{
+      for (nr in cr) {
+      print nr,":\t"cr[nr]
+      }
+      print "None :" none
+    }' #| sort -n
+  fi
+}
+
+regionsAfterDate()
+{
+  echo "$poleADate" | awk -F "," '
+    {if($5!="") cr[$5]++}
+    {if($5 == "") none++} 
+    END{
+      for (nr in cr) {
+      print nr,":\t"cr[nr]
+      }
+      print "None :" none
+    }'
+}
+
+regionsBeforeDate()
+{
+  echo "$poleBDate" | awk -F "," '
+    NR>1{if($5!="") cr[$5]++}
+    {if($5 == "") none++} 
+    END{
+      for (nr in cr) {
+      print nr,":\t"cr[nr]
+      }
+      print "None :" none
+    }'
+}
+
+regionsOneGender()
+{
+  echo "$poleG" | awk -F "," '
+    {if($5!="") cr[$5]++}
+    {if($5 == "") none++} 
+    END{
+      for (nr in cr) {
+      print nr,":\t"cr[nr]
+      }
+      print "None :" none
+    }'
+}
+
+regionsGraph()
+{
+    if [[ $CSV -eq 1 ]]; then
+    awk -F "," '
+    NR>1{if($5!="") cr[$5]++} 
+    {if($5 == "") none++} 
+    END{
+      for (nr in cr) { 
+      printf nr":\t", cr[nr]; for (n=cr[nr]/10000 ; n>0 ; n--) printf "#"; print ""
+      }
+      printf "None  :" ;for (non=none/10000 ; non>0 ; non--) printf "#";
+    }' $STR | sort -n
+    else 
+    awk -F "," '
+    NR>1{if($5!="") cr[$5]++} 
+    {if($5 == "") none++} 
+    END{
+      for (nr in cr) { 
+      printf nr":\t", cr[nr]; for (n=cr[nr]/10000 ; n>0 ; n--) printf "#"; print ""
+      }
+      printf "None  :" ;for (non=none/10000 ; non>0 ; non--) printf "#";
+    }' | sort -n
+    fi
+}
+#"main"
+for ((j=0 ; j<=argumentCount ; j++)); do
+  for ((i=0 ; i<=10 ; i++)); do
+    if [[ ${arguments[j]} == ${commands[i]} ]]; then
+        case "${arguments[j]}" in
+        infected) if [[ $afterDate -eq 1 ]]; then
+                    infectedAfterDate
+                  elif [[ $beforeDate -eq 1 ]]; then
+                    infectedBeforeDate
+                  elif [[ $gender -eq 1 ]]; then
+                    infectedOneGender
+                  else
+                    infectedFunc
+                  fi
+                  ;;
+        merge)  if [[ $afterDate -eq 1 ]]; then
+                  mergeAfterDate "${@:$((params+1))}"
+                elif [[ $beforeDate -eq 1 ]]; then
+                  mergeBeforeDate "${@:$((params+1))}"
+                elif [[ $gender -eq 1 ]]; then
+                  mergeOneGender "${@:$((params+1))}"
+                else
+                mergeFunc "${@:$((params+1))}" 
+                fi
+                ;;
+        gender) if [[ $graph -eq 1 ]]; then
+                  genderGraph
+                elif [[ $afterDate -eq 1 ]]; then
+                  genderAfterDate
+                elif [[ $beforeDate -eq 1 ]]; then
+                  genderBeforeDate
+                elif [[ $gender -eq 1 ]]; then
+                  genderOneGender
+                else
+                  genderFunc
+                fi
+                ;;
+        age)  if [[ $graph -eq 1 ]]; then
+                ageGraph
+              elif [[ $afterDate -eq 1 ]]; then
+                ageAfterDate
+              elif [[ $beforeDate -eq 1 ]]; then
+                ageBeforeDate
+              elif [[ $gender -eq 1 ]]; then
+                agaOneGender
+              else
+                ageFunc
+              fi
+              ;;
+        daily)  if [[ $graph -eq 1 ]]; then
+                  dailyGraph
+                elif [[ $afterDate -eq 1 ]]; then
+                  dailyAfterDate
+                elif [[ $beforeDate -eq 1 ]]; then
+                  dailyBeforeDate
+                elif [[ $gender -eq 1 ]]; then
+                  dailyOneGender
+                else
+                  dailyFunc
+                fi
+                ;;
+        monthly)  if [[ $graph -eq 1 ]]; then
+                    monthlyGraph
+                  elif [[ $afterDate -eq 1 ]]; then
+                    monthlyAfterDate
+                  elif [[ $beforeDate -eq 1 ]]; then
+                    monthlyBeforeDate
+                  elif [[ $gender -eq 1 ]]; then
+                    monthlyOneGender
+                  else
+                    monthlyFunc
+                  fi
+                  ;;
+        yearly) if [[ $graph -eq 1 ]]; then
+                  yearlyGraph
+                elif [[ $afterDate -eq 1 ]]; then
+                  yearlyAfterDate
+                elif [[ $beforeDate -eq 1 ]]; then
+                  yearlyBeforeDate
+                elif [[ $gender -eq 1 ]]; then
+                  yearlyOneGender
+                else
+                  yearlyFunc
+                fi
+                ;;
+        countries)  if [[ $graph -eq 1 ]]; then
+                      countriesGraph
+                    elif [[ $afterDate -eq 1 ]]; then
+                      countriesAfterDate
+                    elif [[ $beforeDate -eq 1 ]]; then
+                      countriesBeforeDate
+                    elif [[ $gender -eq 1 ]]; then
+                      countriesOneGender
+                    else
+                      countriesFunc
+                    fi
+                    ;;
+        districts)  if [[ $graph -eq 1 ]]; then
+                      districtsGraph
+                    elif [[ $afterDate -eq 1 ]]; then
+                      districtsAfterDate
+                    elif [[ $beforeDate -eq 1 ]]; then
+                      districtsBeforeDate
+                    elif [[ $gender -eq 1 ]]; then
+                      districtsOneGender
+                    else
+                      districtsFunc
+                    fi
+                    ;;
+        regions)  if [[ $graph -eq 1 ]]; then
+                    regionsGraph
+                  elif [[ $afterDate -eq 1 ]]; then
+                    regionsAfterDate
+                  elif [[ $beforeDate -eq 1 ]]; then
+                    regionsBeforeDate
+                  elif [[ $gender -eq 1 ]]; then
+                    regionsOneGender
+                  else
+                    regionsFunc
+                  fi
+                  ;;
+        *)  if [[ $afterDate -eq 1 ]]; then
+              mergeAfterDate "${@:$params}"
+            elif [[ $beforeDate -eq 1 ]]; then
+              mergeBeforeDate "${@:$params}"
+            elif [[ $gender -eq 1 ]]; then
+              mergeOneGender "${@:$params}"
+            else
+              mergeFunc "${@:$params}" 
+            fi
+            ;;
+        esac
+      break
+    fi
+  done
+   if [[ ${arguments[j]} == ${commands[i]} ]]; then
+   break
+   fi
+done
