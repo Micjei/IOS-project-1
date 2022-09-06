@@ -1,0 +1,1472 @@
+{\rtf1\ansi\ansicpg1250\cocoartf2580
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 Menlo-Regular;}
+{\colortbl;\red255\green255\blue255;\red202\green202\blue202;\red23\green23\blue23;\red89\green138\blue67;
+\red212\green214\blue154;\red194\green126\blue101;\red140\green211\blue254;\red183\green111\blue179;\red167\green197\blue152;
+}
+{\*\expandedcolortbl;;\cssrgb\c83137\c83137\c83137;\cssrgb\c11765\c11765\c11765;\cssrgb\c41569\c60000\c33333;
+\cssrgb\c86275\c86275\c66667;\cssrgb\c80784\c56863\c47059;\cssrgb\c61176\c86275\c99608;\cssrgb\c77255\c52549\c75294;\cssrgb\c70980\c80784\c65882;
+}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\deftab720
+\pard\pardeftab720\sl360\partightenfactor0
+
+\f0\fs24 \cf2 \cb3 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 POSIXLY_CORRECT=yes\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf4 \cb3 \strokec4 #!/bin/bash #??\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 helps\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3   \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 ""\cf2 \cb1 \strokec2 \
+\cb3   \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "USAGE"\cf2 \cb1 \strokec2 \
+\cb3   \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 ""\cf2 \cb1 \strokec2 \
+\cb3         \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\\t\\t\\t corona.sh [-h] [FILTERS] [COMMAND] [LOG [LOG2 [...]]"\cf2 \cb1 \strokec2 \
+\cb3   \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 ""\cf2 \cb1 \strokec2 \
+\cb3   \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "COMMANDS"\cf2 \cb1 \strokec2 \
+\cb3   \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 ""\cf2 \cb1 \strokec2 \
+\cb3         \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\\t infected \\t counts the number of infected."\cf2 \cb1 \strokec2 \
+\cb3         \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\\t merge \\t\\t merges several log files into one, preserving the original order (the header will be output only once)."\cf2 \cb1 \strokec2 \
+\cb3         \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\\t gender \\t lists the number of infected for each sex."\cf2 \cb1 \strokec2 \
+\cb3         \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\\t age \\t\\t lists statistics on the number of infected people by age (more detailed description is below)."\cf2 \cb1 \strokec2 \
+\cb3         \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\\t daily \\t\\t lists statistics on infected people for each day."\cf2 \cb1 \strokec2 \
+\cb3         \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\\t monthly \\t lists statistics of infected persons for individual months."\cf2 \cb1 \strokec2 \
+\cb3         \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\\t yearly \\t lists statistics on infected persons for each year."\cf2 \cb1 \strokec2 \
+\cb3         \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\\t countries \\t lists statistics of infected persons for individual countries of the disease (excluding the Czech Republic, ie the CZ code)."\cf2 \cb1 \strokec2 \
+\cb3         \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\\t districts \\t lists statistics on infected persons for individual districts."\cf2 \cb1 \strokec2 \
+\cb3         \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\\t regions \\t lists statistics of infected persons for individual regions."\cf2 \cb1 \strokec2 \
+\cb3   \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 ""\cf2 \cb1 \strokec2 \
+\cb3   \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "FILTERS"\cf2 \cb1 \strokec2 \
+\cb3   \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 ""\cf2 \cb1 \strokec2 \
+\cb3         \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\\t -a DATETIME \\t after: only AFTER records of this date are considered (including this date). DATETIME is in the format YYYY-MM-DD."\cf2 \cb1 \strokec2 \
+\cb3         \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\\t -b DATETIME \\t before: only records BEFORE this date (including this date) are considered. DATETIME is in the format YYYY-MM-DD."\cf2 \cb1 \strokec2 \
+\cb3         \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\\t -g GENDER \\t only records of infected persons of a given sex are considered. GENDER can be M (men) or Z (women)."\cf2 \cb1 \strokec2 \
+\cb3         \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\\t -s [WIDTH] \\t lists data not numerically, but graphically in the form of histograms."\cf2 \cb1 \strokec2 \
+\cb3   \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 ""\cf2 \cb1 \strokec2 \
+\cb3 \}\cb1 \
+\
+\cb3 filters=(\cf6 \strokec6 "-h"\cf2 \strokec2  \cf6 \strokec6 "-a"\cf2 \strokec2  \cf6 \strokec6 "-b"\cf2 \strokec2  \cf6 \strokec6 "-g"\cf2 \strokec2  \cf6 \strokec6 "-s"\cf2 \strokec2 ) \cf4 \strokec4 # filters\cf2 \cb1 \strokec2 \
+\cb3 commands=(\cf6 \strokec6 "infected"\cf2 \strokec2  \cf6 \strokec6 "merge"\cf2 \strokec2  \cf6 \strokec6 "gender"\cf2 \strokec2  \cf6 \strokec6 "age"\cf2 \strokec2  \cf6 \strokec6 "daily"\cf2 \strokec2  \cf6 \strokec6 "monthly"\cf2 \strokec2  \cf6 \strokec6 "yearly"\cf2 \strokec2  \cf6 \strokec6 "countries"\cf2 \strokec2  \cf6 \strokec6 "districts"\cf2 \strokec2  \cf6 \strokec6 "regions"\cf2 \strokec2 ) \cf4 \strokec4 # commands\cf2 \cb1 \strokec2 \
+\cb3 arguments=(\cf6 \strokec6 "\cf7 \strokec7 $@\cf6 \strokec6 "\cf2 \strokec2 ) \cf4 \strokec4 # Array of arguments after corona\cf2 \cb1 \strokec2 \
+\cb3 argumentCount=\cf6 \strokec6 "\cf7 \strokec7 $#\cf6 \strokec6 "\cf2 \strokec2  \cf4 \strokec4 # Number of arguments after corona\cf2 \cb1 \strokec2 \
+\cb3 STR=(\cf6 \strokec6 ""\cf2 \strokec2 ) \cf4 \strokec4 #empty array\cf2 \cb1 \strokec2 \
+\cb3 CSV=0\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf4 \cb3 \strokec4 #Finding files \cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf8 \cb3 \strokec8 for\cf2 \strokec2  \cf6 \strokec6 ((q\cf2 \strokec2 =\cf9 \strokec9 0\cf6 \strokec6  ; q\cf2 \strokec2 <=\cf6 \strokec6 argumentCount ; q\cf2 \strokec2 ++\cf6 \strokec6 ))\cf2 \strokec2 ; \cf8 \strokec8 do\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3   \cf8 \strokec8 if\cf2 \strokec2  [[ \cf6 \strokec6 "\cf7 \strokec7 $\{arguments[q]\}\cf6 \strokec6 "\cf2 \strokec2  == *\cf6 \strokec6 ".csv"\cf2 \strokec2 * ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3   STR=(\cf6 \strokec6 "\cf7 \strokec7 $\{arguments[q]\}\cf6 \strokec6 "\cf2 \strokec2 )\cb1 \
+\cb3   CSV=1\cb1 \
+\cb3     \cf8 \strokec8 if\cf2 \strokec2  [[ \cf6 \strokec6 "\cf7 \strokec7 $\{arguments[q]\}\cf6 \strokec6 "\cf2 \strokec2  == *\cf6 \strokec6 ".gz"\cf2 \strokec2 * ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3       CSV=1\cb1 \
+\cb3       gunzip \cf7 \strokec7 $\{arguments[q]\}\cf2 \cb1 \strokec2 \
+\cb3       STR=(\cf6 \strokec6 "\cf7 \strokec7 $\{arguments[q]\cf2 \strokec2 %\cf7 \strokec7 ???\}\cf6 \strokec6 "\cf2 \strokec2 )\cb1 \
+\cb3     \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\cb3     \cf8 \strokec8 if\cf2 \strokec2  [[ \cf6 \strokec6 "\cf7 \strokec7 $\{arguments[q]\}\cf6 \strokec6 "\cf2 \strokec2  == *\cf6 \strokec6 ".csv.bz2"\cf2 \strokec2 * ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3       CSV=1\cb1 \
+\cb3       bzip2 -d \cf7 \strokec7 $\{arguments[q]\}\cf2 \cb1 \strokec2 \
+\cb3       STR=(\cf6 \strokec6 "\cf7 \strokec7 $\{arguments[q]\cf2 \strokec2 %\cf7 \strokec7 ????\}\cf6 \strokec6 "\cf2 \strokec2 )\cb1 \
+\cb3     \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\cb3   \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf8 \cb3 \strokec8 done\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf4 \cb3 \strokec4 #If the command line contains -h, it shows helps and exits the script\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf8 \cb3 \strokec8 for\cf2 \strokec2  \cf6 \strokec6 ((h\cf2 \strokec2 =\cf9 \strokec9 0\cf6 \strokec6  ; h\cf2 \strokec2 <=\cf6 \strokec6 argumentCount ; h\cf2 \strokec2 ++\cf6 \strokec6 ))\cf2 \strokec2 ; \cf8 \strokec8 do\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3   \cf8 \strokec8 if\cf2 \strokec2  [[ \cf6 \strokec6 "\cf7 \strokec7 $\{arguments[h]\}\cf6 \strokec6 "\cf2 \strokec2  == *\cf6 \strokec6 "-h"\cf2 \strokec2 * ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3   helps\cb1 \
+\cb3   \cf5 \strokec5 exit\cf2 \cb1 \strokec2 \
+\cb3   \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf8 \cb3 \strokec8 done\cf2 \cb1 \strokec2 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 dateAfterFil\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3   \cf8 \strokec8 if\cf2 \strokec2  [[ \cf7 \strokec7 $CSV\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3     poleADate=\cf6 \strokec6 $(awk -F "," -v d=\cf7 \strokec7 $date\cf6 \strokec6  '\{if(d <= $2) \{print $0\}\}' \cf7 \strokec7 $STR\cf6 \strokec6 )\cf2 \cb1 \strokec2 \
+\cb3   \cf8 \strokec8 else\cf2 \strokec2  \cb1 \
+\cb3     poleADate=\cf6 \strokec6 $(awk -F "," -v d=\cf7 \strokec7 $date\cf6 \strokec6  '\{if(d <= $2) \{print $0\}\}')\cf2 \cb1 \strokec2 \
+\cb3   \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 dateBeforeFil\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3   \cf8 \strokec8 if\cf2 \strokec2  [[ \cf7 \strokec7 $CSV\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3     poleBDate=\cf6 \strokec6 $(awk -F "," -v d=\cf7 \strokec7 $date\cf6 \strokec6  '\{if(d >= $2) \{print $0\}\}' \cf7 \strokec7 $STR\cf6 \strokec6 )\cf2 \cb1 \strokec2 \
+\cb3   \cf8 \strokec8 else\cf2 \strokec2  \cb1 \
+\cb3     poleBDate=\cf6 \strokec6 $(awk -F "," -v d=\cf7 \strokec7 $date\cf6 \strokec6  '\{if(d >= $2) \{print $0\}\}')\cf2 \cb1 \strokec2 \
+\cb3   \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 genderFil\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3   \cf8 \strokec8 if\cf2 \strokec2  [[ \cf7 \strokec7 $CSV\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3     \cf8 \strokec8 if\cf2 \strokec2  [[ \cf7 \strokec7 $gender\cf2 \strokec2  == \cf6 \strokec6 "M"\cf2 \strokec2  ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3       poleG=\cf6 \strokec6 $(awk -F "," '\{if($4 == "M") \{print $0\}\}' \cf7 \strokec7 $STR\cf6 \strokec6 )\cf2 \cb1 \strokec2 \
+\cb3     \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\cb3     \cf8 \strokec8 if\cf2 \strokec2  [[ \cf7 \strokec7 $gender\cf2 \strokec2  == \cf6 \strokec6 "Z"\cf2 \strokec2  ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3       poleG=\cf6 \strokec6 $(awk -F "," '\{if($4 == "Z") \{print $0\}\}' \cf7 \strokec7 $STR\cf6 \strokec6 )\cf2 \cb1 \strokec2 \
+\cb3     \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\cb3   \cf8 \strokec8 else\cf2 \cb1 \strokec2 \
+\cb3     \cf8 \strokec8 if\cf2 \strokec2  [[ \cf7 \strokec7 $gender\cf2 \strokec2  == \cf6 \strokec6 "M"\cf2 \strokec2  ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3       poleG=\cf6 \strokec6 $(awk -F "," '\{if($4 == "M") \{print $0\}\}')\cf2 \cb1 \strokec2 \
+\cb3     \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\cb3     \cf8 \strokec8 if\cf2 \strokec2  [[ \cf7 \strokec7 $gender\cf2 \strokec2  == \cf6 \strokec6 "Z"\cf2 \strokec2  ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3       poleG=\cf6 \strokec6 $(awk -F "," '\{if($4 == "Z") \{print $0\}\}')\cf2 \cb1 \strokec2 \
+\cb3     \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\cb3   \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\cb3 \}\cb1 \
+\cb3 mergeG=0\cb1 \
+\cb3 mergeA=0\cb1 \
+\cb3 mergeB=0\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf4 \cb3 \strokec4 #FILTERS\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 params=1\cb1 \
+\cb3 afterDate=0\cb1 \
+\cb3 beforeDate=0\cb1 \
+\cb3 gender=0\cb1 \
+\cb3 graph=0\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf8 \cb3 \strokec8 while\cf2 \strokec2  \cf5 \strokec5 getopts\cf2 \strokec2  \cf6 \strokec6 "a:b:g:s:"\cf2 \strokec2  arg; \cf8 \strokec8 do\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3   \cf8 \strokec8 case\cf2 \strokec2  \cf7 \strokec7 $arg\cf2 \strokec2  \cf8 \strokec8 in\cf2 \cb1 \strokec2 \
+\cb3     a)\cb1 \
+\cb3       date=\cf7 \strokec7 $\{OPTARG\}\cf2 \cb1 \strokec2 \
+\cb3       dateAfterFil \{\cf7 \strokec7 $date\cf2 \strokec2 \}\cb1 \
+\cb3       params=\cf6 \strokec6 $((params\cf2 \strokec2 +\cf9 \strokec9 2\cf6 \strokec6 ))\cf2 \cb1 \strokec2 \
+\cb3       afterDate=1\cb1 \
+\cb3       mergeA=\cf7 \strokec7 $\{OPTARG\}\cf2 \cb1 \strokec2 \
+\cb3       ;;\cb1 \
+\cb3     b)\cb1 \
+\cb3       date=\cf7 \strokec7 $\{OPTARG\}\cf2 \cb1 \strokec2 \
+\cb3       dateBeforeFil \{\cf7 \strokec7 $date\cf2 \strokec2 \}\cb1 \
+\cb3       params=\cf6 \strokec6 $((params\cf2 \strokec2 +\cf9 \strokec9 2\cf6 \strokec6 ))\cf2 \cb1 \strokec2 \
+\cb3       beforeDate=1\cb1 \
+\cb3       mergeB=\cf7 \strokec7 $\{OPTARG\}\cf2 \cb1 \strokec2 \
+\cb3       ;;\cb1 \
+\cb3     g)\cb1 \
+\cb3       gender=\cf7 \strokec7 $\{OPTARG\}\cf2 \cb1 \strokec2 \
+\cb3       genderFil \{\cf7 \strokec7 $gender\cf2 \strokec2 \}\cb1 \
+\cb3       params=\cf6 \strokec6 $((params\cf2 \strokec2 +\cf9 \strokec9 2\cf6 \strokec6 ))\cf2 \cb1 \strokec2 \
+\cb3       gender=1\cb1 \
+\cb3       mergeG=\cf7 \strokec7 $\{OPTARG\}\cf2 \cb1 \strokec2 \
+\cb3       ;;\cb1 \
+\cb3     s)\cb1 \
+\cb3       params=\cf6 \strokec6 $((params\cf2 \strokec2 +\cf9 \strokec9 2\cf6 \strokec6 ))\cf2 \cb1 \strokec2 \
+\cb3       graph=1\cb1 \
+\cb3       ;; \cb1 \
+\cb3   \cf8 \strokec8 esac\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf8 \cb3 \strokec8 done\cf2 \cb1 \strokec2 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 infectedFunc\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3   \cf8 \strokec8 if\cf2 \strokec2  [[ \cf7 \strokec7 $CSV\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3     adawk=\cf6 \strokec6 $(awk 'END \{print NR-1\}' \cf7 \strokec7 $STR\cf6 \strokec6 )\cf2 \cb1 \strokec2 \
+\cb3     \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\cf7 \strokec7 $adawk\cf6 \strokec6 "\cf2 \cb1 \strokec2 \
+\cb3   \cf8 \strokec8 else\cf2 \strokec2  \cb1 \
+\cb3     adawk=\cf6 \strokec6 $(awk 'END \{print NR-1\}' \cf7 \strokec7 $STR\cf6 \strokec6 )\cf2 \cb1 \strokec2 \
+\cb3     \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\cf7 \strokec7 $adawk\cf6 \strokec6 "\cf2 \cb1 \strokec2 \
+\cb3   \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 infectedAfterDate\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3   \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\cf7 \strokec7 $poleADate\cf6 \strokec6 "\cf2 \strokec2  | awk \cf6 \strokec6 'END \{print NR-1\}'\cf2 \cb1 \strokec2 \
+\cb3 \}\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 infectedBeforeDate\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3   \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\cf7 \strokec7 $poleBDate\cf6 \strokec6 "\cf2 \strokec2  | awk \cf6 \strokec6 'END \{print NR-1\}'\cf2 \cb1 \strokec2 \
+\cb3 \}\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 infectedOneGender\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3   \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\cf7 \strokec7 $poleG\cf6 \strokec6 "\cf2 \strokec2  | awk \cf6 \strokec6 'END \{print NR-1\}'\cf2 \cb1 \strokec2 \
+\cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 mergeFunc\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3    \cf4 \strokec4 #echo "--merge func--"\cf2 \cb1 \strokec2 \
+\cb3    afterMerge=\cf7 \strokec7 $\{\cf2 \strokec2 @:\cf7 \strokec7  1\}\cf2 \strokec2  \cf4 \strokec4 #First argument after argument merge\cf2 \cb1 \strokec2 \
+\cb3    \cf8 \strokec8 if\cf2 \strokec2  [[ \cf6 \strokec6 "\cf7 \strokec7 $afterMerge\cf6 \strokec6 "\cf2 \strokec2  == *\cf6 \strokec6 ".csv"\cf2 \strokec2 * ]]; \cf8 \strokec8 then\cf2 \strokec2  \cb1 \
+\cb3      awk \cf6 \strokec6 'NR==1\{print $0\}'\cf2 \strokec2  \cf7 \strokec7 $afterMerge\cf2 \cb1 \strokec2 \
+\cb3      auto=(\cf6 \strokec6 "\cf7 \strokec7 $@\cf6 \strokec6 "\cf2 \strokec2 )\cb1 \
+\cb3        \cf8 \strokec8 for\cf2 \strokec2  \cf7 \strokec7 file\cf2 \strokec2  \cf8 \strokec8 in\cf2 \strokec2  \cf7 \strokec7 $@\cf2 \cb1 \strokec2 \
+\cb3        \cf8 \strokec8 do\cf2 \strokec2  \cb1 \
+\cb3         \cf4 \strokec4 #echo "------------------------------------------------------------------" \cf2 \cb1 \strokec2 \
+\cb3         \cf4 \strokec4 #cat $file | sed '1d'\cf2 \cb1 \strokec2 \
+\cb3        awk \cf6 \strokec6 ' NR>1\{print \}'\cf2 \strokec2  \cf7 \strokec7 $file\cf2 \cb1 \strokec2 \
+\cb3        \cf8 \strokec8 done\cf2 \cb1 \strokec2 \
+\cb3    \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 mergeAfterDate\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3    \cf4 \strokec4 #echo "--merge func--"\cf2 \cb1 \strokec2 \
+\cb3    afterMerge=\cf7 \strokec7 $\{\cf2 \strokec2 @:\cf7 \strokec7  1\}\cf2 \strokec2  \cf4 \strokec4 #First argument after argument merge\cf2 \cb1 \strokec2 \
+\cb3    \cf8 \strokec8 if\cf2 \strokec2  [[ \cf6 \strokec6 "\cf7 \strokec7 $afterMerge\cf6 \strokec6 "\cf2 \strokec2  == *\cf6 \strokec6 ".csv"\cf2 \strokec2 * ]]; \cf8 \strokec8 then\cf2 \strokec2  \cb1 \
+\cb3   awk \cf6 \strokec6 'NR==1\{print $0\}'\cf2 \strokec2  \cf7 \strokec7 $afterMerge\cf2 \cb1 \strokec2 \
+\cb3      auto=(\cf6 \strokec6 "\cf7 \strokec7 $@\cf6 \strokec6 "\cf2 \strokec2 )\cb1 \
+\cb3        \cf8 \strokec8 for\cf2 \strokec2  \cf7 \strokec7 file\cf2 \strokec2  \cf8 \strokec8 in\cf2 \strokec2  \cf7 \strokec7 $@\cf2 \cb1 \strokec2 \
+\cb3        \cf8 \strokec8 do\cf2 \strokec2  \cb1 \
+\cb3         \cf4 \strokec4 #echo "------------------------------------------------------------------" \cf2 \cb1 \strokec2 \
+\cb3        IDK=\cf6 \strokec6 $(awk ' NR>1\{print \}' \cf7 \strokec7 $file\cf6 \strokec6 )\cf2 \cb1 \strokec2 \
+\cb3        \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\cf7 \strokec7 $IDK\cf6 \strokec6 "\cf2 \strokec2  | awk -F \cf6 \strokec6 ","\cf2 \strokec2  -v d=\cf7 \strokec7 $date\cf2 \strokec2  \cf6 \strokec6 '\{if(d <= $2) \{print $0\}\}'\cf2 \cb1 \strokec2 \
+\cb3        \cf8 \strokec8 done\cf2 \cb1 \strokec2 \
+\cb3    \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 mergeBeforeDate\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3    \cf4 \strokec4 #echo "--merge func--"\cf2 \cb1 \strokec2 \
+\cb3    afterMerge=\cf7 \strokec7 $\{\cf2 \strokec2 @:\cf7 \strokec7  1\}\cf2 \strokec2  \cf4 \strokec4 #First argument after argument merge\cf2 \cb1 \strokec2 \
+\cb3    \cf8 \strokec8 if\cf2 \strokec2  [[ \cf6 \strokec6 "\cf7 \strokec7 $afterMerge\cf6 \strokec6 "\cf2 \strokec2  == *\cf6 \strokec6 ".csv"\cf2 \strokec2 * ]]; \cf8 \strokec8 then\cf2 \strokec2  \cb1 \
+\cb3   awk \cf6 \strokec6 'NR==1\{print $0\}'\cf2 \strokec2  \cf7 \strokec7 $afterMerge\cf2 \cb1 \strokec2 \
+\cb3      auto=(\cf6 \strokec6 "\cf7 \strokec7 $@\cf6 \strokec6 "\cf2 \strokec2 )\cb1 \
+\cb3        \cf8 \strokec8 for\cf2 \strokec2  \cf7 \strokec7 file\cf2 \strokec2  \cf8 \strokec8 in\cf2 \strokec2  \cf7 \strokec7 $@\cf2 \cb1 \strokec2 \
+\cb3        \cf8 \strokec8 do\cf2 \strokec2  \cb1 \
+\cb3         \cf4 \strokec4 #echo "------------------------------------------------------------------" \cf2 \cb1 \strokec2 \
+\cb3        IDK=\cf6 \strokec6 $(awk ' NR>1\{print \}' \cf7 \strokec7 $file\cf6 \strokec6 )\cf2 \cb1 \strokec2 \
+\cb3        \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\cf7 \strokec7 $IDK\cf6 \strokec6 "\cf2 \strokec2  | awk -F \cf6 \strokec6 ","\cf2 \strokec2  -v d=\cf7 \strokec7 $date\cf2 \strokec2  \cf6 \strokec6 '\{if(d >= $2) \{print $0\}\}'\cf2 \cb1 \strokec2 \
+\cb3        \cf8 \strokec8 done\cf2 \cb1 \strokec2 \
+\cb3    \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 mergeOneGender\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3    \cf4 \strokec4 #echo "--merge func--"\cf2 \cb1 \strokec2 \
+\cb3    afterMerge=\cf7 \strokec7 $\{\cf2 \strokec2 @:\cf7 \strokec7  1\}\cf2 \strokec2  \cf4 \strokec4 #First argument after argument merge\cf2 \cb1 \strokec2 \
+\cb3    \cf8 \strokec8 if\cf2 \strokec2  [[ \cf6 \strokec6 "\cf7 \strokec7 $afterMerge\cf6 \strokec6 "\cf2 \strokec2  == *\cf6 \strokec6 ".csv"\cf2 \strokec2 * ]]; \cf8 \strokec8 then\cf2 \strokec2  \cb1 \
+\cb3   awk \cf6 \strokec6 'NR==1\{print $0\}'\cf2 \strokec2  \cf7 \strokec7 $afterMerge\cf2 \cb1 \strokec2 \
+\cb3      auto=(\cf6 \strokec6 "\cf7 \strokec7 $@\cf6 \strokec6 "\cf2 \strokec2 )\cb1 \
+\cb3        \cf8 \strokec8 for\cf2 \strokec2  \cf7 \strokec7 file\cf2 \strokec2  \cf8 \strokec8 in\cf2 \strokec2  \cf7 \strokec7 $@\cf2 \cb1 \strokec2 \
+\cb3        \cf8 \strokec8 do\cf2 \strokec2  \cb1 \
+\cb3         \cf4 \strokec4 #echo "------------------------------------------------------------------" \cf2 \cb1 \strokec2 \
+\cb3        IDK=\cf6 \strokec6 $(awk 'NR>1\{print\}' \cf7 \strokec7 $file\cf6 \strokec6 )\cf2 \cb1 \strokec2 \
+\cb3        \cf8 \strokec8 if\cf2 \strokec2  [[ \cf7 \strokec7 $mergeG\cf2 \strokec2  == \cf6 \strokec6 "M"\cf2 \strokec2  ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3         \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\cf7 \strokec7 $IDK\cf6 \strokec6 "\cf2 \strokec2  | awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 '\{if($4 == "M") \{print $0\}\}'\cf2 \cb1 \strokec2 \
+\cb3        \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\cb3        \cf8 \strokec8 if\cf2 \strokec2  [[ \cf7 \strokec7 $mergeG\cf2 \strokec2  == \cf6 \strokec6 "Z"\cf2 \strokec2  ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3         \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\cf7 \strokec7 $IDK\cf6 \strokec6 "\cf2 \strokec2  | awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 '\{if($4 == "Z") \{print $0\}\}'\cf2 \cb1 \strokec2 \
+\cb3        \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\cb3        \cf8 \strokec8 done\cf2 \cb1 \strokec2 \
+\cb3    \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 genderFunc\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3   \cf8 \strokec8 if\cf2 \strokec2  [[ \cf7 \strokec7 $CSV\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3   awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     match($4, /M/) \{m++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     match($4, /Z/) \{z++\}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if ($4 == "") none++\}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END \{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "M:   " m \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "Z:   " z \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "None:" none\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \strokec2  \cf7 \strokec7 $STR\cf2 \strokec2  \cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3   \cf8 \strokec8 else\cf2 \strokec2  \cb1 \
+\cb3   awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     match($4, /M/) \{m++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     match($4, /Z/) \{z++\}  \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if ($4 == "") none++\}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END \{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "M:   " m \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "Z:   " z \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "none:"\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3   \cf8 \strokec8 fi\cf2 \strokec2  \cb1 \
+\cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 genderAfterDate\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3   \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\cf7 \strokec7 $poleADate\cf6 \strokec6 "\cf2 \strokec2  | awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     match($4, /M/) \{m++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     match($4, /Z/) \{z++\}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if ($4 == "") none++\}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END \{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "M:   " m \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "Z:   " z \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "None:" none\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 genderBeforeDate\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3   \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\cf7 \strokec7 $poleBDate\cf6 \strokec6 "\cf2 \strokec2  | awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     match($4, /M/) \{m++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     match($4, /Z/) \{z++\}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if ($4 == "") none++\}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END \{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "M:   " m \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "Z:   " z \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "None:" none\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 genderOneGender\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3   \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\cf7 \strokec7 $poleG\cf6 \strokec6 "\cf2 \strokec2  | awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     match($4, /M/) \{m++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     match($4, /Z/) \{z++\}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if ($4 == "") none++\}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END \{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "M:   " m \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "Z:   " z \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "None:" none\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 genderGraph\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3   \cf8 \strokec8 if\cf2 \strokec2  [[ \cf7 \strokec7 $CSV\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3     awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 '\{if($4 == "M")\{m++\}\{if($4 == "Z")\{z++\}\{if($4 == "")\{n++\}\}\}\}\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     printf "M:   "\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     for(j=m/100000 ; j>1 ; j--) printf "#"\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     print " "\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     printf "Z:   "\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     for(i=z/100000 ; i>1 ; i--) printf "#"\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     print " "\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     printf "None:"\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     for(non=n/100000 ; non>1 ; non--) printf "#"\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \strokec2  \cf7 \strokec7 $STR\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3   \cf8 \strokec8 else\cf2 \cb1 \strokec2 \
+\cb3     awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 '\{if($4 == "M")\{m++\}\{if($4 == "Z")\{z++\}\{if($4 == "")\{n++\}\}\}\}\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     printf "M:   "\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     for(j=m/100000 ; j>1 ; j--) printf "#"\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     print " "\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     printf "Z:   "\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     for(i=z/100000 ; i>1 ; i--) printf "#"\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     print " "\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     printf "None:"\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     for(non=n/100000 ; non>1 ; non--) printf "#"\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3   \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 ageFunc\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3   \cf8 \strokec8 if\cf2 \strokec2  [[ \cf7 \strokec7 $CSV\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3   awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 'NR>1\{ \cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     if ($3 == "") none++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 >= 0 && $3 <= 5) first++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 5 && $3 <= 15) second++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 15 && $3 <= 25) third++     \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 25 && $3 <= 35) fourth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 35 && $3 <= 45) fifth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 45 && $3 <= 55) sixth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 55 && $3 <= 65) seventh++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 65 && $3 <= 75) eigth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 75 && $3 <= 85) nineth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 85 && $3 <= 95) tenth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 95 && $3 <= 105) eleventh++ \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else ($3 > 105) twelfth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END \{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "0-5   :" first\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "6-15  :" second\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "16-25 :" third\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "26-35 :" fourth\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "36-45 :" fifth\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "46-55 :" sixth\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "56-65 :" seventh\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "66-75 :" eigth\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "76-85 :" nineth\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "86-95 :" tenth\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "96-105:" eleventh\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print ">105  :" twelfth\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "None  :" none\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \strokec2  \cf7 \strokec7 $STR\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3   \cf8 \strokec8 else\cf2 \strokec2  \cb1 \
+\cb3   awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 'NR>1\{ \cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     if ($3 == "") none++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 >= 0 && $3 <= 5) first++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 5 && $3 <= 15) second++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 15 && $3 <= 25) third++     \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 25 && $3 <= 35) fourth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 35 && $3 <= 45) fifth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 45 && $3 <= 55) sixth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 55 && $3 <= 65) seventh++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 65 && $3 <= 75) eigth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 75 && $3 <= 85) nineth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 85 && $3 <= 95) tenth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 95 && $3 <= 105) eleventh++ \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else ($3 > 105) twelfth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END \{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "0-5   :" first\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "6-15  :" second\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "16-25 :" third\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "26-35 :" fourth\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "36-45 :" fifth\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "46-55 :" sixth\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "56-65 :" seventh\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "66-75 :" eigth\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "76-85 :" nineth\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "86-95 :" tenth\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "96-105:" eleventh\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print ">105  :" twelfth\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "None  :" none\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3   \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 ageAfterDate\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3   \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\cf7 \strokec7 $poleADate\cf6 \strokec6 "\cf2 \strokec2  | awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 'NR>1\{ \cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     if ($3 == "") none++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 >= 0 && $3 <= 5) first++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 5 && $3 <= 15) second++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 15 && $3 <= 25) third++     \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 25 && $3 <= 35) fourth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 35 && $3 <= 45) fifth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 45 && $3 <= 55) sixth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 55 && $3 <= 65) seventh++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 65 && $3 <= 75) eigth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 75 && $3 <= 85) nineth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 85 && $3 <= 95) tenth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 95 && $3 <= 105) eleventh++ \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else ($3 > 105) twelfth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END \{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "0-5   :" first\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "6-15  :" second\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "16-25 :" third\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "26-35 :" fourth\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "36-45 :" fifth\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "46-55 :" sixth\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "56-65 :" seventh\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "66-75 :" eigth\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "76-85 :" nineth\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "86-95 :" tenth\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "96-105:" eleventh\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print ">105  :" twelfth\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "None  :" none\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 ageBeforeDate\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3   \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\cf7 \strokec7 $poleBDate\cf6 \strokec6 "\cf2 \strokec2  | awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 'NR>1\{ \cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     if ($3 == "") none++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 >= 0 && $3 <= 5) first++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 5 && $3 <= 15) second++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 15 && $3 <= 25) third++     \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 25 && $3 <= 35) fourth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 35 && $3 <= 45) fifth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 45 && $3 <= 55) sixth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 55 && $3 <= 65) seventh++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 65 && $3 <= 75) eigth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 75 && $3 <= 85) nineth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 85 && $3 <= 95) tenth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 95 && $3 <= 105) eleventh++ \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else ($3 > 105) twelfth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END \{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "0-5   :" first\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "6-15  :" second\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "16-25 :" third\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "26-35 :" fourth\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "36-45 :" fifth\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "46-55 :" sixth\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "56-65 :" seventh\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "66-75 :" eigth\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "76-85 :" nineth\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "86-95 :" tenth\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "96-105:" eleventh\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print ">105  :" twelfth\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "None  :" none\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 agaOneGender\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3   \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\cf7 \strokec7 $poleG\cf6 \strokec6 "\cf2 \strokec2  | awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 'NR>1\{ \cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     if ($3 == "") none++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 >= 0 && $3 <= 5) first++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 5 && $3 <= 15) second++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 15 && $3 <= 25) third++     \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 25 && $3 <= 35) fourth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 35 && $3 <= 45) fifth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 45 && $3 <= 55) sixth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 55 && $3 <= 65) seventh++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 65 && $3 <= 75) eigth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 75 && $3 <= 85) nineth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 85 && $3 <= 95) tenth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 95 && $3 <= 105) eleventh++ \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else ($3 > 105) twelfth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END \{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "0-5   :" first\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "6-15  :" second\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "16-25 :" third\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "26-35 :" fourth\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "36-45 :" fifth\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "46-55 :" sixth\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "56-65 :" seventh\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "66-75 :" eigth\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "76-85 :" nineth\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "86-95 :" tenth\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "96-105:" eleventh\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print ">105  :" twelfth\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "None  :" none\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 ageGraph\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3   \cf8 \strokec8 if\cf2 \strokec2  [[ \cf7 \strokec7 $CSV\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3   awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 'NR>1\{ \cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     if ($3 == "") none++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 >= 0 && $3 <= 5) first++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 5 && $3 <= 15) second++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 15 && $3 <= 25) third++     \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 25 && $3 <= 35) fourth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 35 && $3 <= 45) fifth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 45 && $3 <= 55) sixth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 55 && $3 <= 65) seventh++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 65 && $3 <= 75) eigth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 75 && $3 <= 85) nineth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 85 && $3 <= 95) tenth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 95 && $3 <= 105) eleventh++ \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else ($3 > 105) twelfth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END \{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf "0-5   :" ;for (f=first/10000 ; f>1 ; f--) printf "#"; print " "\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf "6-15  :" ;for (s=second/10000 ; s>1 ; s--) printf "#"; print " "\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf "16-25 :" ;for (t=third/10000 ; t>1 ; t--) printf "#"; print " "\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf "26-35 :" ;for (fo=fourth/10000 ; fo>1 ; fo--) printf "#"; print " "\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf "36-45 :" ;for (fi=fifth/10000 ; fi>1 ; fi--) printf "#"; print " "\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf "46-55 :" ;for (si=sixth/10000 ; si>1 ; si--) printf "#"; print " "\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf "56-65 :" ;for (se=seventh/10000 ; se>1 ; se--) printf "#"; print " "\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf "66-75 :" ;for (e=eigth/10000 ; e>1 ; e--) printf "#"; print " "\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf "76-85 :" ;for (n=nineth/10000 ; n>1 ; n--) printf "#"; print " "\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf "86-95 :" ;for (te=tenth/10000 ; te>1 ; te--) printf "#"; print " "\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf "96-105:" ;for (el=eleventh/10000 ; el>1 ; el--) printf "#"; print " "\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf ">105  :" ;for (tw=twelfth/10000 ; tw>1 ; tw--) printf "#"; print " "\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf "None  :" ;for (non=none/10000 ; non>1 ; non--) printf "#";\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \strokec2  \cf7 \strokec7 $STR\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3     \cf8 \strokec8 else\cf2 \strokec2  \cb1 \
+\cb3     awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 'NR>1\{ \cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     if ($3 == "") none++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 >= 0 && $3 <= 5) first++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 5 && $3 <= 15) second++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 15 && $3 <= 25) third++     \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 25 && $3 <= 35) fourth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 35 && $3 <= 45) fifth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 45 && $3 <= 55) sixth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 55 && $3 <= 65) seventh++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 65 && $3 <= 75) eigth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 75 && $3 <= 85) nineth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 85 && $3 <= 95) tenth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else if ($3 > 95 && $3 <= 105) eleventh++ \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     else ($3 > 105) twelfth++\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END \{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf "0-5   :" ;for (f=first/10000 ; f>1 ; f--) printf "#"; print " "\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf "6-15  :" ;for (s=second/10000 ; s>1 ; s--) printf "#"; print " "\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf "16-25 :" ;for (t=third/10000 ; t>1 ; t--) printf "#"; print " "\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf "26-35 :" ;for (fo=fourth/10000 ; fo>1 ; fo--) printf "#"; print " "\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf "36-45 :" ;for (fi=fifth/10000 ; fi>1 ; fi--) printf "#"; print " "\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf "46-55 :" ;for (si=sixth/10000 ; si>1 ; si--) printf "#"; print " "\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf "56-65 :" ;for (se=seventh/10000 ; se>1 ; se--) printf "#"; print " "\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf "66-75 :" ;for (e=eigth/10000 ; e>1 ; e--) printf "#"; print " "\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf "76-85 :" ;for (n=nineth/10000 ; n>1 ; n--) printf "#"; print " "\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf "86-95 :" ;for (te=tenth/10000 ; te>1 ; te--) printf "#"; print " "\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf "96-105:" ;for (el=eleventh/10000 ; el>1 ; el--) printf "#"; print " "\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf ">105  :" ;for (tw=twelfth/10000 ; tw>1 ; tw--) printf "#"; print " "\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf "None  :" ;for (non=none/10000 ; non>1 ; non--) printf "#";\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3   \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 dailyFunc\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3   \cf8 \strokec8 if\cf2 \strokec2  [[ \cf7 \strokec7 $CSV\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3   awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     NR>1\{if($2!="") c[$2]++\}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if($2 == "") none++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       for (n in c) \{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print n,":\\t"c[n]\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       \}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "None :" none\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \strokec2  \cf7 \strokec7 $STR\cf2 \strokec2  \cf4 \strokec4 #| sort -n\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3   \cf8 \strokec8 else\cf2 \cb1 \strokec2 \
+\cb3   awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     NR>1\{if($2!="") c[$2]++\}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if($2 == "") none++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       for (n in c) \{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print n,":\\t"c[n]\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       \}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "None :" none\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \strokec2  \cf4 \strokec4 #| sort -n\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3   \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 dailyAfterDate\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3   \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\cf7 \strokec7 $poleADate\cf6 \strokec6 "\cf2 \strokec2  | awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     \{if($2!="") cd[$2]++\}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if($2 == "") none++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       for (nd in cd) \{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print nd,":\\t"cd[nd]\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       \}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "None :" none\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 dailyBeforeDate\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3   \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\cf7 \strokec7 $poleBDate\cf6 \strokec6 "\cf2 \strokec2  | awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     \{if($2!="") cd[$2]++\}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if($2 == "") none++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       for (nd in cd) \{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print nd,":\\t"cd[nd]\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       \}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "None :" none\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 dailyOneGender\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3   \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\cf7 \strokec7 $poleG\cf6 \strokec6 "\cf2 \strokec2  | awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     \{if($2!="") cd[$2]++\}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if($2 == "") none++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       for (nd in cd) \{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print nd,":\\t"cd[nd]\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       \}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "None :" none\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 dailyGraph\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3     \cf8 \strokec8 if\cf2 \strokec2  [[ \cf7 \strokec7 $CSV\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3     awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     NR>1\{if($2!="") c[$2]++\}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if($2 == "") none++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       for (n in c) \{ \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf n":\\t", c[n]; for (n=c[n]/500 ; n>0 ; n--) printf "#"; print ""\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       \}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf "None  :" ;for (non=none/500 ; non>0 ; non--) printf "#";\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \strokec2  \cf7 \strokec7 $STR\cf2 \strokec2  | sort -n\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3     \cf8 \strokec8 else\cf2 \strokec2  \cb1 \
+\cb3     awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     NR>1\{if($2!="") c[$2]++\}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if($2 == "") none++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       for (n in c) \{ \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf n":\\t", c[n]; for (n=c[n]/500 ; n>0 ; n--) printf "#"; print ""\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       \}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf "None  :" ;for (non=none/500 ; non>0 ; non--) printf "#";\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \strokec2  | sort -n\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3     \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 monthlyFunc\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3   \cf8 \strokec8 if\cf2 \strokec2  [[ \cf7 \strokec7 $CSV\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3   awk -F \cf6 \strokec6 "[,-]"\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     NR>1\{if($6!="") cm[$6"-"$7]++\}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if($7 == "") none++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       for (nm in cm) \{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print nm,":\\t"cm[nm]\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       \}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "None :" none\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \strokec2  \cf7 \strokec7 $STR\cf2 \strokec2  \cf4 \strokec4 #| sort -n\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3   \cf8 \strokec8 else\cf2 \cb1 \strokec2 \
+\cb3   awk -F \cf6 \strokec6 "[,-]"\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     NR>1\{if($6!="") cm[$6"-"$7]++\}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if($7 == "") none++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       for (nm in cm) \{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print nm,":\\t"cm[nm]\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       \}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "None :" none\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \strokec2  \cf4 \strokec4 #| sort -n\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3   \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 monthlyAfterDate\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3   \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\cf7 \strokec7 $poleADate\cf6 \strokec6 "\cf2 \strokec2  | awk -F \cf6 \strokec6 "[,-]"\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     \{if($6!="") cm[$6"-"$7]++\}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if($7 == "") none++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       for (nm in cm) \{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print nm,":\\t"cm[nm]\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       \}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "None :" none\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 monthlyBeforeDate\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3   \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\cf7 \strokec7 $poleBDate\cf6 \strokec6 "\cf2 \strokec2  | awk -F \cf6 \strokec6 "[,-]"\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     NR>1\{if($6!="") cm[$6"-"$7]++\}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if($7 == "") none++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       for (nm in cm) \{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print nm,":\\t"cm[nm]\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       \}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "None :" none\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 monthlyOneGender\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3   \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\cf7 \strokec7 $poleG\cf6 \strokec6 "\cf2 \strokec2  | awk -F \cf6 \strokec6 "[,-]"\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     \{if($6!="") cm[$6"-"$7]++\}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if($7 == "") none++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       for (nm in cm) \{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print nm,":\\t"cm[nm]\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       \}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "None :" none\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 monthlyGraph\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3       \cf8 \strokec8 if\cf2 \strokec2  [[ \cf7 \strokec7 $CSV\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3     awk -F \cf6 \strokec6 "[,-]"\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     NR>1\{if($6!="") cm[$6"-"$7]++\}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if($7 == "") none++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       for (nm in cm) \{ \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf nm":\\t", cm[nm]; for (n=cm[nm]/10000 ; n>0 ; n--) printf "#"; print ""\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       \}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf "None  :" ;for (non=none/10000 ; non>0 ; non--) printf "#";\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \strokec2  \cf7 \strokec7 $STR\cf2 \strokec2  | sort -n\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3     \cf8 \strokec8 else\cf2 \strokec2  \cb1 \
+\cb3     awk -F \cf6 \strokec6 "[,-]"\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     NR>1\{if($6!="") cm[$6"-"$7]++\}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if($7 == "") none++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       for (nm in cm) \{ \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf nm":\\t", cm[nm]; for (n=cm[nm]/10000 ; n>0 ; n--) printf "#"; print ""\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       \}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf "None  :" ;for (non=none/10000 ; non>0 ; non--) printf "#";\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \strokec2  | sort -n\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3     \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 yearlyFunc\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3   \cf8 \strokec8 if\cf2 \strokec2  [[ \cf7 \strokec7 $CSV\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3   awk -F \cf6 \strokec6 "[,-]"\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     NR>1\{if($6!="") cy[$6]++\}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if($6 == "") none++\}  \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       for (ny in cy) \{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print ny,":\\t"cy[ny]\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       \}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "None :" none\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \strokec2  \cf7 \strokec7 $STR\cf2 \strokec2  \cf4 \strokec4 #| sort -n\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3   \cf8 \strokec8 else\cf2 \cb1 \strokec2 \
+\cb3   awk -F \cf6 \strokec6 "[,-]"\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     NR>1\{if($6!="") cy[$6]++\}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if($6 == "") none++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       for (ny in cy) \{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print ny,":\\t"cy[ny]\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       \}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "None :" none\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \strokec2  \cf4 \strokec4 #| sort -n\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3   \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 yearlyAfterDate\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3   \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\cf7 \strokec7 $poleADate\cf6 \strokec6 "\cf2 \strokec2  | awk -F \cf6 \strokec6 "[,-]"\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     \{if($6!="") cy[$6]++\}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if($6 == "") none++\}  \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       for (ny in cy) \{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print ny,":\\t"cy[ny]\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       \}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "None :" none\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 yearlyBeforeDate\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3   \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\cf7 \strokec7 $poleBDate\cf6 \strokec6 "\cf2 \strokec2  | awk -F \cf6 \strokec6 "[,-]"\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     NR>1\{if($6!="") cy[$6]++\}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if($6 == "") none++\}  \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       for (ny in cy) \{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print ny,":\\t"cy[ny]\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       \}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "None :" none\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 yearlyOneGender\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3   \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\cf7 \strokec7 $poleG\cf6 \strokec6 "\cf2 \strokec2  | awk -F \cf6 \strokec6 "[,-]"\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     \{if($6!="") cy[$6]++\}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if($6 == "") none++\}  \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       for (ny in cy) \{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print ny,":\\t"cy[ny]\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       \}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "None :" none\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 yearlyGraph\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3     \cf8 \strokec8 if\cf2 \strokec2  [[ \cf7 \strokec7 $CSV\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3     awk -F \cf6 \strokec6 "[,-]"\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     NR>1\{if($6!="") cy[$6]++\}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if($6 == "") none++\}  \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       for (ny in cy) \{ \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf ny":\\t", cy[ny]; for (n=cy[ny]/100000 ; n>0 ; n--) printf "#"; print ""\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       \}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf "None  :" ;for (non=none/100000 ; non>0 ; non--) printf "#";\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \strokec2  \cf7 \strokec7 $STR\cf2 \strokec2  | sort -n\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3     \cf8 \strokec8 else\cf2 \strokec2  \cb1 \
+\cb3     awk -F \cf6 \strokec6 "[,-]"\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     NR>1\{if($6!="") cy[$6]++\}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if($6 == "") none++\}  \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       for (ny in cy) \{ \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf ny":\\t", cy[ny]; for (n=cy[ny]/100000 ; n>0 ; n--) printf "#"; print ""\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       \}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf "None:" ;for (non=none/100000 ; non>0 ; non--) printf "#";\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \strokec2  | sort -n\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3     \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 countriesFunc\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3   \cf8 \strokec8 if\cf2 \strokec2  [[ \cf7 \strokec7 $CSV\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3   awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     NR>1\{if($8!="") cc[$8]++\}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if($8 == "") none++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       for (nc in cc) \{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print nc,":\\t"cc[nc]\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       \}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \strokec2  \cf7 \strokec7 $STR\cf2 \strokec2  | sort -n\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3   \cf8 \strokec8 else\cf2 \cb1 \strokec2 \
+\cb3   awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     NR>1\{if($8!="") cc[$8]++\}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if($8 == "") none++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       for (nc in cc) \{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print nc,":\\t"cc[nc]\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       \}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \strokec2  | sort -n\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3   \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 countriesAfterDate\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3   \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\cf7 \strokec7 $poleADate\cf6 \strokec6 "\cf2 \strokec2  | awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     \{if($8!="") cc[$8]++\}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if($8 == "") none++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       for (nc in cc) \{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print nc,":\\t"cc[nc]\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       \}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 countriesBeforeDate\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3   \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\cf7 \strokec7 $poleBDate\cf6 \strokec6 "\cf2 \strokec2  | awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     NR>1\{if($8!="") cc[$8]++\}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if($8 == "") none++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       for (nc in cc) \{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print nc,":\\t"cc[nc]\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       \}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 countriesOneGender\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3   \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\cf7 \strokec7 $poleG\cf6 \strokec6 "\cf2 \strokec2  | awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     \{if($8!="") cc[$8]++\}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if($8 == "") none++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       for (nc in cc) \{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print nc,":\\t"cc[nc]\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       \}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 countriesGraph\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3     \cf8 \strokec8 if\cf2 \strokec2  [[ \cf7 \strokec7 $CSV\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3     awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     NR>1\{if($8!="") cc[$8]++\}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if($8 == "") none++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       for (nc in cc) \{ \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf nc":\\t", cc[nc]; for (n=cc[nc]/100 ; n>0 ; n--) printf "#"; print ""\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       \}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \strokec2  \cf7 \strokec7 $STR\cf2 \strokec2  | sort -n\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3     \cf8 \strokec8 else\cf2 \strokec2  \cb1 \
+\cb3     awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     NR>1\{if($8!="") cc[$8]++\}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if($8 == "") none++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       for (nc in cc) \{ \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf nc":\\t", cc[nc]; for (n=cc[nc]/100 ; n>0 ; n--) printf "#"; print ""\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       \}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \strokec2  | sort -n\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3     \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 districtsFunc\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3   \cf8 \strokec8 if\cf2 \strokec2  [[ \cf7 \strokec7 $CSV\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3   awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     NR>1\{if($6!="") cd[$6]++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if($6 == "") none++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       for (nd in cd) \{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print nd,":\\t"cd[nd]\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       \}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "None :" none\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \strokec2  \cf7 \strokec7 $STR\cf2 \strokec2  \cf4 \strokec4 #| sort -n\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3   \cf8 \strokec8 else\cf2 \cb1 \strokec2 \
+\cb3   awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     NR>1\{if($6!="") cd[$6]++\}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if($6 == "") none++\}  \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       for (nd in cd) \{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print nd,":\\t"cd[nd]\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       \}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "None :" none\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \strokec2  \cf4 \strokec4 #| sort -n\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3   \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 districtsAfterDate\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3   \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\cf7 \strokec7 $poleADate\cf6 \strokec6 "\cf2 \strokec2  | awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     \{if($6!="") cd[$6]++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if($6 == "") none++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       for (nd in cd) \{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print nd,":\\t"cd[nd]\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       \}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "None :" none\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 districtsBeforeDate\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3   \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\cf7 \strokec7 $poleBDate\cf6 \strokec6 "\cf2 \strokec2  | awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     NR>1\{if($6!="") cd[$6]++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if($6 == "") none++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       for (nd in cd) \{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print nd,":\\t"cd[nd]\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       \}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "None :" none\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 districtsOneGender\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3   \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\cf7 \strokec7 $poleG\cf6 \strokec6 "\cf2 \strokec2  | awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     \{if($6!="") cd[$6]++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if($6 == "") none++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       for (nd in cd) \{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print nd,":\\t"cd[nd]\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       \}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "None :" none\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \}\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 districtsGraph\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3     \cf8 \strokec8 if\cf2 \strokec2  [[ \cf7 \strokec7 $CSV\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3     awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     NR>1\{if($6!="") cd[$6]++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if($6 == "") none++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       for (nd in cd) \{ \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf nd":\\t", cd[nd]; for (n=cd[nd]/1000 ; n>0 ; n--) printf "#"; print ""\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       \}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf "None  :" ;for (non=none/1000 ; non>0 ; non--) printf "#";\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \strokec2  \cf7 \strokec7 $STR\cf2 \strokec2  | sort -n\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3     \cf8 \strokec8 else\cf2 \strokec2  \cb1 \
+\cb3     awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     NR>1\{if($6!="") cd[$6]++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if($6 == "") none++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       for (nd in cd) \{ \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf nd":\\t", cd[nd]; for (n=cd[nd]/1000 ; n>0 ; n--) printf "#"; print ""\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       \}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf "None  :" ;for (non=none/1000 ; non>0 ; non--) printf "#";\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \strokec2  | sort -n\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3     \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 regionsFunc\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3   \cf8 \strokec8 if\cf2 \strokec2  [[ \cf7 \strokec7 $CSV\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3   awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     NR>1\{if($5!="") cr[$5]++\}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if($5 == "") none++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       for (nr in cr) \{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print nr,":\\t"cr[nr]\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       \}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "None :" none\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \strokec2  \cf7 \strokec7 $STR\cf2 \strokec2  \cf4 \strokec4 #| sort -n\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3   \cf8 \strokec8 else\cf2 \cb1 \strokec2 \
+\cb3   awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     NR>1\{if($5!="") cr[$5]++\}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if($5 == "") none++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       for (nr in cr) \{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print nr,":\\t"cr[nr]\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       \}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "None :" none\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \strokec2  \cf4 \strokec4 #| sort -n\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3   \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 regionsAfterDate\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3   \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\cf7 \strokec7 $poleADate\cf6 \strokec6 "\cf2 \strokec2  | awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     \{if($5!="") cr[$5]++\}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if($5 == "") none++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       for (nr in cr) \{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print nr,":\\t"cr[nr]\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       \}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "None :" none\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 regionsBeforeDate\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3   \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\cf7 \strokec7 $poleBDate\cf6 \strokec6 "\cf2 \strokec2  | awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     NR>1\{if($5!="") cr[$5]++\}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if($5 == "") none++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       for (nr in cr) \{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print nr,":\\t"cr[nr]\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       \}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "None :" none\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 regionsOneGender\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3   \cf5 \strokec5 echo\cf2 \strokec2  \cf6 \strokec6 "\cf7 \strokec7 $poleG\cf6 \strokec6 "\cf2 \strokec2  | awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     \{if($5!="") cr[$5]++\}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if($5 == "") none++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       for (nr in cr) \{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print nr,":\\t"cr[nr]\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       \}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       print "None :" none\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \}\cb1 \
+\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf5 \cb3 \strokec5 regionsGraph\cf2 \strokec2 ()\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3 \{\cb1 \
+\cb3     \cf8 \strokec8 if\cf2 \strokec2  [[ \cf7 \strokec7 $CSV\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3     awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     NR>1\{if($5!="") cr[$5]++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if($5 == "") none++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       for (nr in cr) \{ \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf nr":\\t", cr[nr]; for (n=cr[nr]/10000 ; n>0 ; n--) printf "#"; print ""\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       \}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf "None  :" ;for (non=none/10000 ; non>0 ; non--) printf "#";\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \strokec2  \cf7 \strokec7 $STR\cf2 \strokec2  | sort -n\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3     \cf8 \strokec8 else\cf2 \strokec2  \cb1 \
+\cb3     awk -F \cf6 \strokec6 ","\cf2 \strokec2  \cf6 \strokec6 '\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf6 \cb3 \strokec6     NR>1\{if($5!="") cr[$5]++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \{if($5 == "") none++\} \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     END\{\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       for (nr in cr) \{ \cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf nr":\\t", cr[nr]; for (n=cr[nr]/10000 ; n>0 ; n--) printf "#"; print ""\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       \}\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6       printf "None  :" ;for (non=none/10000 ; non>0 ; non--) printf "#";\cf2 \cb1 \strokec2 \
+\cf6 \cb3 \strokec6     \}'\cf2 \strokec2  | sort -n\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3     \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\cb3 \}\cb1 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf4 \cb3 \strokec4 #"main"\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf8 \cb3 \strokec8 for\cf2 \strokec2  \cf6 \strokec6 ((j\cf2 \strokec2 =\cf9 \strokec9 0\cf6 \strokec6  ; j\cf2 \strokec2 <=\cf6 \strokec6 argumentCount ; j\cf2 \strokec2 ++\cf6 \strokec6 ))\cf2 \strokec2 ; \cf8 \strokec8 do\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \cb3   \cf8 \strokec8 for\cf2 \strokec2  \cf6 \strokec6 ((i\cf2 \strokec2 =\cf9 \strokec9 0\cf6 \strokec6  ; i\cf2 \strokec2 <=\cf9 \strokec9 10\cf6 \strokec6  ; i\cf2 \strokec2 ++\cf6 \strokec6 ))\cf2 \strokec2 ; \cf8 \strokec8 do\cf2 \cb1 \strokec2 \
+\cb3     \cf8 \strokec8 if\cf2 \strokec2  [[ \cf7 \strokec7 $\{arguments[j]\}\cf2 \strokec2  == \cf7 \strokec7 $\{commands[i]\}\cf2 \strokec2  ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3         \cf8 \strokec8 case\cf2 \strokec2  \cf6 \strokec6 "\cf7 \strokec7 $\{arguments[j]\}\cf6 \strokec6 "\cf2 \strokec2  \cf8 \strokec8 in\cf2 \cb1 \strokec2 \
+\cb3         infected) \cf8 \strokec8 if\cf2 \strokec2  [[ \cf7 \strokec7 $afterDate\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3                     infectedAfterDate\cb1 \
+\cb3                   \cf8 \strokec8 elif\cf2 \strokec2  [[ \cf7 \strokec7 $beforeDate\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3                     infectedBeforeDate\cb1 \
+\cb3                   \cf8 \strokec8 elif\cf2 \strokec2  [[ \cf7 \strokec7 $gender\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3                     infectedOneGender\cb1 \
+\cb3                   \cf8 \strokec8 else\cf2 \cb1 \strokec2 \
+\cb3                     infectedFunc\cb1 \
+\cb3                   \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\cb3                   ;;\cb1 \
+\cb3         merge)  \cf8 \strokec8 if\cf2 \strokec2  [[ \cf7 \strokec7 $afterDate\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3                   mergeAfterDate \cf6 \strokec6 "\cf7 \strokec7 $\{\cf2 \strokec2 @:\cf7 \strokec7 $((params+1))\}\cf6 \strokec6 "\cf2 \cb1 \strokec2 \
+\cb3                 \cf8 \strokec8 elif\cf2 \strokec2  [[ \cf7 \strokec7 $beforeDate\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3                   mergeBeforeDate \cf6 \strokec6 "\cf7 \strokec7 $\{\cf2 \strokec2 @:\cf7 \strokec7 $((params+1))\}\cf6 \strokec6 "\cf2 \cb1 \strokec2 \
+\cb3                 \cf8 \strokec8 elif\cf2 \strokec2  [[ \cf7 \strokec7 $gender\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3                   mergeOneGender \cf6 \strokec6 "\cf7 \strokec7 $\{\cf2 \strokec2 @:\cf7 \strokec7 $((params+1))\}\cf6 \strokec6 "\cf2 \cb1 \strokec2 \
+\cb3                 \cf8 \strokec8 else\cf2 \cb1 \strokec2 \
+\cb3                 mergeFunc \cf6 \strokec6 "\cf7 \strokec7 $\{\cf2 \strokec2 @:\cf7 \strokec7 $((params+1))\}\cf6 \strokec6 "\cf2 \strokec2  \cb1 \
+\cb3                 \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\cb3                 ;;\cb1 \
+\cb3         gender) \cf8 \strokec8 if\cf2 \strokec2  [[ \cf7 \strokec7 $graph\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3                   genderGraph\cb1 \
+\cb3                 \cf8 \strokec8 elif\cf2 \strokec2  [[ \cf7 \strokec7 $afterDate\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3                   genderAfterDate\cb1 \
+\cb3                 \cf8 \strokec8 elif\cf2 \strokec2  [[ \cf7 \strokec7 $beforeDate\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3                   genderBeforeDate\cb1 \
+\cb3                 \cf8 \strokec8 elif\cf2 \strokec2  [[ \cf7 \strokec7 $gender\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3                   genderOneGender\cb1 \
+\cb3                 \cf8 \strokec8 else\cf2 \cb1 \strokec2 \
+\cb3                   genderFunc\cb1 \
+\cb3                 \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\cb3                 ;;\cb1 \
+\cb3         age)  \cf8 \strokec8 if\cf2 \strokec2  [[ \cf7 \strokec7 $graph\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3                 ageGraph\cb1 \
+\cb3               \cf8 \strokec8 elif\cf2 \strokec2  [[ \cf7 \strokec7 $afterDate\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3                 ageAfterDate\cb1 \
+\cb3               \cf8 \strokec8 elif\cf2 \strokec2  [[ \cf7 \strokec7 $beforeDate\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3                 ageBeforeDate\cb1 \
+\cb3               \cf8 \strokec8 elif\cf2 \strokec2  [[ \cf7 \strokec7 $gender\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3                 agaOneGender\cb1 \
+\cb3               \cf8 \strokec8 else\cf2 \cb1 \strokec2 \
+\cb3                 ageFunc\cb1 \
+\cb3               \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\cb3               ;;\cb1 \
+\cb3         daily)  \cf8 \strokec8 if\cf2 \strokec2  [[ \cf7 \strokec7 $graph\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3                   dailyGraph\cb1 \
+\cb3                 \cf8 \strokec8 elif\cf2 \strokec2  [[ \cf7 \strokec7 $afterDate\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3                   dailyAfterDate\cb1 \
+\cb3                 \cf8 \strokec8 elif\cf2 \strokec2  [[ \cf7 \strokec7 $beforeDate\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3                   dailyBeforeDate\cb1 \
+\cb3                 \cf8 \strokec8 elif\cf2 \strokec2  [[ \cf7 \strokec7 $gender\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3                   dailyOneGender\cb1 \
+\cb3                 \cf8 \strokec8 else\cf2 \cb1 \strokec2 \
+\cb3                   dailyFunc\cb1 \
+\cb3                 \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\cb3                 ;;\cb1 \
+\cb3         monthly)  \cf8 \strokec8 if\cf2 \strokec2  [[ \cf7 \strokec7 $graph\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3                     monthlyGraph\cb1 \
+\cb3                   \cf8 \strokec8 elif\cf2 \strokec2  [[ \cf7 \strokec7 $afterDate\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3                     monthlyAfterDate\cb1 \
+\cb3                   \cf8 \strokec8 elif\cf2 \strokec2  [[ \cf7 \strokec7 $beforeDate\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3                     monthlyBeforeDate\cb1 \
+\cb3                   \cf8 \strokec8 elif\cf2 \strokec2  [[ \cf7 \strokec7 $gender\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3                     monthlyOneGender\cb1 \
+\cb3                   \cf8 \strokec8 else\cf2 \cb1 \strokec2 \
+\cb3                     monthlyFunc\cb1 \
+\cb3                   \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\cb3                   ;;\cb1 \
+\cb3         yearly) \cf8 \strokec8 if\cf2 \strokec2  [[ \cf7 \strokec7 $graph\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3                   yearlyGraph\cb1 \
+\cb3                 \cf8 \strokec8 elif\cf2 \strokec2  [[ \cf7 \strokec7 $afterDate\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3                   yearlyAfterDate\cb1 \
+\cb3                 \cf8 \strokec8 elif\cf2 \strokec2  [[ \cf7 \strokec7 $beforeDate\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3                   yearlyBeforeDate\cb1 \
+\cb3                 \cf8 \strokec8 elif\cf2 \strokec2  [[ \cf7 \strokec7 $gender\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3                   yearlyOneGender\cb1 \
+\cb3                 \cf8 \strokec8 else\cf2 \cb1 \strokec2 \
+\cb3                   yearlyFunc\cb1 \
+\cb3                 \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\cb3                 ;;\cb1 \
+\cb3         countries)  \cf8 \strokec8 if\cf2 \strokec2  [[ \cf7 \strokec7 $graph\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3                       countriesGraph\cb1 \
+\cb3                     \cf8 \strokec8 elif\cf2 \strokec2  [[ \cf7 \strokec7 $afterDate\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3                       countriesAfterDate\cb1 \
+\cb3                     \cf8 \strokec8 elif\cf2 \strokec2  [[ \cf7 \strokec7 $beforeDate\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3                       countriesBeforeDate\cb1 \
+\cb3                     \cf8 \strokec8 elif\cf2 \strokec2  [[ \cf7 \strokec7 $gender\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3                       countriesOneGender\cb1 \
+\cb3                     \cf8 \strokec8 else\cf2 \cb1 \strokec2 \
+\cb3                       countriesFunc\cb1 \
+\cb3                     \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\cb3                     ;;\cb1 \
+\cb3         districts)  \cf8 \strokec8 if\cf2 \strokec2  [[ \cf7 \strokec7 $graph\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3                       districtsGraph\cb1 \
+\cb3                     \cf8 \strokec8 elif\cf2 \strokec2  [[ \cf7 \strokec7 $afterDate\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3                       districtsAfterDate\cb1 \
+\cb3                     \cf8 \strokec8 elif\cf2 \strokec2  [[ \cf7 \strokec7 $beforeDate\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3                       districtsBeforeDate\cb1 \
+\cb3                     \cf8 \strokec8 elif\cf2 \strokec2  [[ \cf7 \strokec7 $gender\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3                       districtsOneGender\cb1 \
+\cb3                     \cf8 \strokec8 else\cf2 \cb1 \strokec2 \
+\cb3                       districtsFunc\cb1 \
+\cb3                     \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\cb3                     ;;\cb1 \
+\cb3         regions)  \cf8 \strokec8 if\cf2 \strokec2  [[ \cf7 \strokec7 $graph\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3                     regionsGraph\cb1 \
+\cb3                   \cf8 \strokec8 elif\cf2 \strokec2  [[ \cf7 \strokec7 $afterDate\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3                     regionsAfterDate\cb1 \
+\cb3                   \cf8 \strokec8 elif\cf2 \strokec2  [[ \cf7 \strokec7 $beforeDate\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3                     regionsBeforeDate\cb1 \
+\cb3                   \cf8 \strokec8 elif\cf2 \strokec2  [[ \cf7 \strokec7 $gender\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3                     regionsOneGender\cb1 \
+\cb3                   \cf8 \strokec8 else\cf2 \cb1 \strokec2 \
+\cb3                     regionsFunc\cb1 \
+\cb3                   \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\cb3                   ;;\cb1 \
+\cb3         *)  \cf8 \strokec8 if\cf2 \strokec2  [[ \cf7 \strokec7 $afterDate\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3               mergeAfterDate \cf6 \strokec6 "\cf7 \strokec7 $\{\cf2 \strokec2 @:\cf7 \strokec7 $params\}\cf6 \strokec6 "\cf2 \cb1 \strokec2 \
+\cb3             \cf8 \strokec8 elif\cf2 \strokec2  [[ \cf7 \strokec7 $beforeDate\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3               mergeBeforeDate \cf6 \strokec6 "\cf7 \strokec7 $\{\cf2 \strokec2 @:\cf7 \strokec7 $params\}\cf6 \strokec6 "\cf2 \cb1 \strokec2 \
+\cb3             \cf8 \strokec8 elif\cf2 \strokec2  [[ \cf7 \strokec7 $gender\cf2 \strokec2  -eq 1 ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3               mergeOneGender \cf6 \strokec6 "\cf7 \strokec7 $\{\cf2 \strokec2 @:\cf7 \strokec7 $params\}\cf6 \strokec6 "\cf2 \cb1 \strokec2 \
+\cb3             \cf8 \strokec8 else\cf2 \cb1 \strokec2 \
+\cb3               mergeFunc \cf6 \strokec6 "\cf7 \strokec7 $\{\cf2 \strokec2 @:\cf7 \strokec7 $params\}\cf6 \strokec6 "\cf2 \strokec2  \cb1 \
+\cb3             \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\cb3             ;;\cb1 \
+\cb3         \cf8 \strokec8 esac\cf2 \cb1 \strokec2 \
+\cb3       \cf5 \strokec5 break\cf2 \cb1 \strokec2 \
+\cb3     \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\cb3   \cf8 \strokec8 done\cf2 \cb1 \strokec2 \
+\cb3    \cf8 \strokec8 if\cf2 \strokec2  [[ \cf7 \strokec7 $\{arguments[j]\}\cf2 \strokec2  == \cf7 \strokec7 $\{commands[i]\}\cf2 \strokec2  ]]; \cf8 \strokec8 then\cf2 \cb1 \strokec2 \
+\cb3    \cf5 \strokec5 break\cf2 \cb1 \strokec2 \
+\cb3    \cf8 \strokec8 fi\cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sl360\partightenfactor0
+\cf8 \cb3 \strokec8 done\cf2 \cb1 \strokec2 \
+}
